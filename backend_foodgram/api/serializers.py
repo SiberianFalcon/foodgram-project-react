@@ -2,12 +2,12 @@ from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
 
 
-from .models import Ingridient
+from .models import Ingredient
 
 
-class IngridientSerializer(serializers.ModelSerializer):
+class IngredientSerializer(serializers.ModelSerializer):
     
 
     class Meta:
-        fields = 'id', 'ingridient', 'measurement_unit'
-        model = Ingridient
+        fields = 'id', 'ingredient', 'measurement_unit'
+        model = Ingredient

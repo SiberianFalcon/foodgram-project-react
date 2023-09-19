@@ -44,11 +44,11 @@ class Tag(models.Model):
         max_length=200, blank=False, null=False, unique=True
     )
     slug = models.SlugField(
-        maxLength=200, blank=False, null=False, unique=True
+        max_length=200, blank=False, null=False, unique=True
     )
 
 
-class Ingridient(models.Model):
+class Ingredient(models.Model):
     """Модель ингридиентов для рецептов."""
 
     measurement_unit = models.CharField(max_length=10, blank=False)
@@ -65,26 +65,26 @@ class Recipe(models.Model):
     name = models.CharField(max_length=128, blank=False, null=False)
     image = models.ImageField(blank=False, null=False)
     text = models.TextField(blank=False, null=False)
-    ingridients = models.ManyToManyField(
-        Ingridient, blank=False, null=False, through='IngridientsRecipe'
+    ingredient = models.ManyToManyField(
+        Ingredient, blank=False, through='IngredientsRecipe'
     )
     tag = models.ForeignKey(
-        Tag, on_delete=models.SET_NULL, blank=False,
+        Tag, on_delete=models.RESTRICT, blank=False,
         null=False, related_name='recipes'
     )
     cooking_time = models.TimeField(blank=False, null=False)
 
 
-class IngridientsRecipe(models.Model):
+class IngredientsRecipe(models.Model):
     """
     Модель связующая рецепты и ингридиенты, благодаря которой
     считается количество необходимых продуктов для нужного рецепта."""
 
-    ingridient = models.ForeignKey(
-        Ingridient, on_delete=models.RESTRICT, related_name='recipes'
+    ingredient = models.ForeignKey(
+        Ingredient, on_delete=models.RESTRICT, related_name='recipes'
     )
     recipe = models.ForeignKey(
-        Recipe, on_delete=models.RESTRICT, related_name='ingridients'
+        Recipe, on_delete=models.RESTRICT, related_name='ingredients'
     )
     amount = models.PositiveSmallIntegerField()
 
