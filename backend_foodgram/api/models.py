@@ -1,54 +1,100 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.core.validators import RegexValidator, EmailValidator
 
 
 class User(AbstractUser):
-    first_name = models.CharField(("first name"), max_length=150, blank=False, null=False)
-    last_name = models.CharField(("last name"), max_length=150, blank=False, null=False)
-    email = models.EmailField(("email address"), max_length=150, blank=False, null=False, unique=True)
+    """Самодельная модель пользователя."""
+
+    first_name = models.CharField(
+        ("first name"), max_length=150, blank=False, null=False
+    )
+    last_name = models.CharField(
+        ("last name"), max_length=150, blank=False, null=False
+    )
+    email = models.EmailField(
+        ("email address"), max_length=254, blank=False, null=False,
+        unique=True, validators=[EmailValidator]
+    )
     is_staff = models.BooleanField(
-        ("staff status"),
-        default=False,
-        help_text=("Designates whether the user can log into this admin site."),
+        ("staff status"), default=False,
+        help_text=(
+            "Designates whether the user can log into this admin site.")
     )
     is_active = models.BooleanField(
-        ("active"),
-        default=True,
+        ("active"), default=True,
         help_text=(
             "Designates whether this user should be treated as active. "
-            "Unselect this instead of deleting accounts."
-        ),
+            "Unselect this instead of deleting accounts.")
     )
 
     EMAIL_FIELD = "email"
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["first_name", "last_name", "username"]
 
-    
 
-# class Tag(models.Model):
-#     color = models.CharField(max_length=16)
-#     name = models.CharField(max_length=64, null=False)
-#     slug = models.SlugField(null=False)
+class Tag(models.Model):
+    """Модель тегов для рецептов."""
 
-
-
-# class Ingridients(models.Model):
-#     amount = models.PositiveSmallIntegerField()
-#     name = models.CharField()
-#     measurement_unit = models.CharField(max_length=10)
-
-
-# class Recipe(models.Model):
-#     author = models.ForeignKey(User, related_name="author", on_delete=models.CASCADE)
-#     tag = models.ManyToManyField(Tag, related_name='tag')
-#     text = models.TextField()
-#     name = models.CharField(max_length=128, null=False)
-#     ingridients = models.ManyToManyField(Ingridients)
-#     image = models.ImageField()
-#     cooking_time = models.CharField()
+    color = models.CharField(
+        max_length=7, blank=False, null=False, unique=True,
+        validators=[RegexValidator]
+    )
+    name = models.CharField(
+        max_length=200, blank=False, null=False, unique=True
+    )
+    slug = models.SlugField(
+        maxLength=200, blank=False, null=False, unique=True
+    )
 
 
-# class Subscription(models.Model):
-#     name = models.ManyToManyField(User)
-#     is_subscribed = models.BooleanField(default=False)
+class Ingridient(models.Model):
+    """Модель ингридиентов для рецептов."""
+
+    measurement_unit = models.CharField(max_length=10, blank=False)
+    name = models.CharField(max_length=128, blank=False)
+
+
+class Recipe(models.Model):
+    """Модель рецепта."""
+
+    author = models.ForeignKey(
+        User, related_name="author", on_delete=models.CASCADE,
+        blank=False, null=False
+    )
+    name = models.CharField(max_length=128, blank=False, null=False)
+    image = models.ImageField(blank=False, null=False)
+    text = models.TextField(blank=False, null=False)
+    ingridients = models.ManyToManyField(
+        Ingridient, blank=False, null=False, through='IngridientsRecipe'
+    )
+    tag = models.ForeignKey(
+        Tag, on_delete=models.SET_NULL, blank=False,
+        null=False, related_name='recipes'
+    )
+    cooking_time = models.TimeField(blank=False, null=False)
+
+
+class IngridientsRecipe(models.Model):
+    """
+    Модель связующая рецепты и ингридиенты, благодаря которой
+    считается количество необходимых продуктов для нужного рецепта."""
+
+    ingridient = models.ForeignKey(
+        Ingridient, on_delete=models.RESTRICT, related_name='recipes'
+    )
+    recipe = models.ForeignKey(
+        Recipe, on_delete=models.RESTRICT, related_name='ingridients'
+    )
+    amount = models.PositiveSmallIntegerField()
+
+
+class Follow(models.Model):
+    """Модель подписчиков."""
+
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='follower'
+    )
+    following = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='following'
+    )

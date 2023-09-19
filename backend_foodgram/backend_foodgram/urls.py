@@ -19,7 +19,12 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
 
+from api.views import RecipeViewSet, IngridientViewSet
+
+
 router = DefaultRouter()
+router.register('api/recipes/', RecipeViewSet)
+router.register('api/ingridients/', IngridientViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
