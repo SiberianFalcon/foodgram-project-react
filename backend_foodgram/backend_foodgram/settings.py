@@ -1,6 +1,12 @@
 import os
 from pathlib import Path
 
+from dotenv import load_dotenv
+
+
+load_dotenv()
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -14,7 +20,7 @@ SECRET_KEY = 'django-insecure-uy=o8j5y)haovbe-=nfb9(!gf7jnbn6ek8q7_&fnb_mltslqo4
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 
 # Application definition
@@ -67,16 +73,26 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'backend_foodgram.wsgi.application'
 
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('POSTGRES_DB', 'django'),
-        'USER': os.getenv('POSTGRES_USER', 'django'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD', ''),
-        'HOST': os.getenv('DB_HOST', ''),
-        'PORT': os.getenv('DB_PORT', 5432)
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': '/data/db.sqlite3',
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         # Меняем настройку Django: теперь для работы будет использоваться
+#         # бэкенд postgresql
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'django_user',
+#         'USER': 'mysecretpassword',
+#         'PASSWORD': 'django',
+#         'HOST': 'db',
+#         'PORT': 5432
+#     }
+# }
 
 AUTH_USER_MODEL = 'user.CustomUser'
 
@@ -109,7 +125,7 @@ STATIC_ROOT = BASE_DIR / 'collected_static'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = '/media'
 
-FONT_ROOT = os.path.join(BASE_DIR, 'fonts')
+# FONT_ROOT = os.path.join(BASE_DIR, 'fonts')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
