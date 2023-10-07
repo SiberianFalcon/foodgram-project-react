@@ -73,27 +73,16 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'backend_foodgram.wsgi.application'
 
-
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': '/data/db.sqlite3',
+    'default' :{
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'food_db',
+        'USER': 'food_user',
+        'PASSWORD': 'foodpassword',
+        'HOST': 'fdb',
+        'PORT': 5432
     }
 }
-
-# DATABASES = {
-#     'default': {
-#         # Меняем настройку Django: теперь для работы будет использоваться
-#         # бэкенд postgresql
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'django_user',
-#         'USER': 'mysecretpassword',
-#         'PASSWORD': 'django',
-#         'HOST': 'db',
-#         'PORT': 5432
-#     }
-# }
-
 AUTH_USER_MODEL = 'user.CustomUser'
 
 AUTH_PASSWORD_VALIDATORS = [
