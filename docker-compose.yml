@@ -31,9 +31,6 @@ services:
 
   gateway:
     build: ./gateway/
-    # Ключ ports устанавливает
-    # перенаправление всех запросов с порта 8888 хоста
-    # на порт 80 контейнера.
     volumes:
       - static:/staticfiles/
     depends_on:
