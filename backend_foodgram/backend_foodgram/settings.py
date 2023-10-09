@@ -124,7 +124,7 @@ STATIC_ROOT = BASE_DIR / 'collected_static'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = '/media'
 
-# FONT_ROOT = os.path.join(BASE_DIR, 'fonts')
+FONT_ROOT = os.path.join(BASE_DIR, 'core')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

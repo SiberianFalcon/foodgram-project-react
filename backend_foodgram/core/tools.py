@@ -24,20 +24,21 @@ def get_user_and_recipe_or_404(request, pk):
 
 
 def generate_ingredients_list_via_pdf(ingredient_list):
-    font_path = os.path.join(settings.FONT_ROOT, 'Zekton.ttf')
+    font_path = os.path.join(settings.FONT_ROOT, 'Czizh.ttf')
     pdfmetrics.registerFont(
         TTFont(name='Zekton', filename=font_path, validate='UTF-8'))
     response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = ('attachment; '
-                                       'filename="shopping_list.pdf"')
+    response['Content-Disposition'] = (
+        'attachment;' 'filename="shopping_list.pdf"')
     page = canvas.Canvas(response)
     page.setFont('Zekton', size=FONT_SIZE)
     page.drawString(HEADER_LENGTH, HEADER_HEIGHT, 'Список ингредиентов')
     page.setFont('Zekton', size=TEXT_SIZE)
     height = HEIGHT
     for i, (name, data) in enumerate(ingredient_list.items(), 1):
-        page.drawString(LENGTH, height, (f'{i}. {name} - {data["amount"]}, '
-                                         f'{data["measurement_unit"]}'))
+        page.drawString(
+            LENGTH, height, (f'{i}. {name} - {data["amount"]},' 
+                             f'{data["measurement_unit"]}'))
         height -= 25
     page.showPage()
     page.save()

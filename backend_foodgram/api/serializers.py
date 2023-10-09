@@ -16,8 +16,8 @@ User = get_user_model()
 class CustomUserCreateSerializer(UserCreateSerializer):
     class Meta:
         model = User
-        fields = ('email', 'id', 'password', 'username',
-                  'first_name', 'last_name')
+        fields = (
+            'email', 'id', 'password', 'username', 'first_name', 'last_name')
 
 
 class CustomUserSerializer(UserSerializer):
@@ -25,8 +25,9 @@ class CustomUserSerializer(UserSerializer):
 
     class Meta:
         model = User
-        fields = ('email', 'id', 'username',
-                  'first_name', 'last_name', 'is_subscribed',)
+        fields = (
+            'email', 'id', 'username', 'first_name', 'last_name', 
+            'is_subscribed',)
 
     def get_is_subscribed(self, obj):
         request = self.context['request']
@@ -46,9 +47,9 @@ class SubscriptionSerializer(CustomUserSerializer):
 
     class Meta:
         model = User
-        fields = ('email', 'id', 'username', 'first_name',
-                  'last_name', 'is_subscribed',
-                  'recipes', 'recipes_count')
+        fields = (
+            'email', 'id', 'username', 'first_name', 'last_name',
+            'is_subscribed', 'recipes', 'recipes_count')
 
     def get_recipes(self, obj):
         recipes = obj.recipes.all()
@@ -73,14 +74,12 @@ class ShortSubscriptionSerializer(serializers.ModelSerializer):
             raise ValidationError({'error': 'Subscription is already exists.'})
         if follower == following:
             raise ValidationError(
-                {'error': 'You can\'t subscribe to yourself.'}
-            )
+                {'error': 'You can\'t subscribe to yourself.'})
         return data
 
     def to_representation(self, instance):
         return SubscriptionSerializer(instance.following, context={
-            'request': self.context.get('request')
-        }).data
+            'request': self.context.get('request')}).data
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -124,14 +123,14 @@ class RecipeSerializer(serializers.ModelSerializer):
     ingredients = IngredientInRecipeSerializer(many=True)
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
-    cooking_time = serializers.IntegerField(min_value=MIN_VALUE,
-                                            max_value=MAX_VALUE)
+    cooking_time = serializers.IntegerField(
+        min_value=MIN_VALUE, max_value=MAX_VALUE)
 
     class Meta:
         model = Recipe
-        fields = ('id', 'tags', 'author', 'ingredients',
-                  'is_favorited', 'is_in_shopping_cart',
-                  'name', 'image', 'text', 'cooking_time')
+        fields = (
+            'id', 'tags', 'author', 'ingredients', 'is_favorited',
+            'is_in_shopping_cart', 'name', 'image', 'text', 'cooking_time')
 
     def get_user(self):
         request = self.context.get('request')
@@ -169,15 +168,11 @@ class RecipeSerializer(serializers.ModelSerializer):
         if not validated_data:
             raise serializers.ValidationError({
                 'ingredients':
-                    'Requires at least one ingredient for the recipe.'})
+                    'Требуется хотя бы один ингредиент для рецепта'})
         recipe_ingredients = [
             RecipeIngredient(
-                ingredient_id=ingredient['id'],
-                amount=ingredient['amount'],
-                recipe=recipe
-            )
-            for ingredient in validated_data
-        ]
+                ingredient_id=ingredient['id'], amount=ingredient['amount'],
+                recipe=recipe) for ingredient in validated_data]
         RecipeIngredient.objects.bulk_create(recipe_ingredients)
 
     def create(self, validated_data):
@@ -195,8 +190,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         recipe.name = validated_data.get('name', recipe.name)
         recipe.text = validated_data.get('text', recipe.text)
         recipe.cooking_time = validated_data.get(
-            'cooking_time', recipe.cooking_time
-        )
+            'cooking_time', recipe.cooking_time)
         recipe.tags.clear()
         tags_data = self.initial_data.get('tags')
         recipe.tags.set(tags_data)
@@ -226,11 +220,9 @@ class ShortRecipeInFavoriteSerializer(serializers.ModelSerializer):
         recipe = data.get('recipe')
         if user.favorite_recipes.filter(recipe=recipe).exists():
             raise ValidationError(
-                {'error': 'This recipe is already in favorites.'}
-            )
+                {'error': 'This recipe is already in favorites.'})
         return data
 
     def to_representation(self, instance):
         return RecipeInFavoriteSerializer(instance.recipe, context={
-            'request': self.context.get('request')
-        }).data
+            'request': self.context.get('request')}).data
