@@ -43,18 +43,19 @@ class Ingredient(models.Model):
 
 
 class Recipe(models.Model):
-    author = models.ForeignKey(User,
-                               on_delete=models.CASCADE,
-                               related_name='recipes')
+    author = models.ForeignKey(
+        User, on_delete=models.CASCADE, 
+        related_name='recipes'
+    )
     tags = models.ManyToManyField(Tag, related_name='recipes')
     image = models.ImageField(upload_to='recipes/')
     name = models.CharField(max_length=200)
     text = models.TextField()
-    cooking_time = models.PositiveSmallIntegerField(validators=[
-        MinValueValidator(limit_value=MIN_VALUE,
-                          message='Too short a period of time.'),
-        MaxValueValidator(limit_value=MAX_VALUE,
-                          message='Too long a period of time.')
+    cooking_time = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(
+            limit_value=MIN_VALUE,message='Too short a period of time.'),
+        MaxValueValidator(
+            limit_value=MAX_VALUE, message='Too long a period of time.')
     ])
     publication_date = models.DateTimeField(auto_now_add=True,
                                             db_index=True)

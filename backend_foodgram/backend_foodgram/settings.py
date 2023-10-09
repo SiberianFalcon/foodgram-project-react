@@ -20,7 +20,7 @@ SECRET_KEY = 'django-insecure-uy=o8j5y)haovbe-=nfb9(!gf7jnbn6ek8q7_&fnb_mltslqo4
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+ALLOWED_HOSTS = [os.getenv('HOST_1'), os.getenv('HOST_2')]
 
 
 # Application definition
@@ -74,15 +74,25 @@ TEMPLATES = [
 WSGI_APPLICATION = 'backend_foodgram.wsgi.application'
 
 DATABASES = {
-    'default' :{
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'food_db',
-        'USER': 'food_user',
-        'PASSWORD': 'foodpassword',
-        'HOST': 'fdb',
-        'PORT': 5432
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         # Меняем настройку Django: теперь для работы будет использоваться
+#         # бэкенд postgresql
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': os.getenv('POSTGRES_DB', 'food_db'),
+#         'USER': os.getenv('POSTGRES_USER', 'food_user'),
+#         'PASSWORD': os.getenv('POSTGRES_PASSWORD', ''),
+#         'HOST': os.getenv('DB_HOST', ''),
+#         'PORT': os.getenv('DB_PORT', 5432)
+#     }
+# }
+
 AUTH_USER_MODEL = 'user.CustomUser'
 
 AUTH_PASSWORD_VALIDATORS = [

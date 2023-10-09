@@ -20,10 +20,10 @@ class RecipeAdmin(admin.ModelAdmin):
     list_display = ['id', 'name']
 
 
-class IngredientAdmin(admin.ModelAdmin):
-    inlines = (RecipeIngredientInline, )
+# class IngredientAdmin(admin.ModelAdmin):
+#     inlines = (RecipeIngredientInline, )
 
 
 admin.site.register(Recipe, RecipeAdmin)
-admin.site.register(Ingredient, IngredientAdmin)
+admin.site.register(Ingredient)
 admin.site.register(RecipeIngredient)

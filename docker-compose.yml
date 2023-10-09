@@ -1,0 +1,42 @@
+version: '3'
+
+volumes:
+  foodgram_data:
+  static:
+  media:
+
+services:
+
+  fdb:
+    image: postgres:13.10
+    env_file: .env
+    volumes:
+      - foodgram_data:/var/lib/postgresql/data
+
+  backend_foodgram:
+    build: ./backend_foodgram/
+    env_file: .env
+    volumes:
+      - static:/backend_static
+      - media:/media
+    depends_on:
+      - fdb
+
+  frontend:
+    env_file: .env
+    build: ./frontend/
+    command: cp -r /app/build/. 
+    volumes:
+      - static:/frontend_static
+
+  gateway:
+    build: ./gateway/
+    # Ключ ports устанавливает
+    # перенаправление всех запросов с порта 8888 хоста
+    # на порт 80 контейнера.
+    volumes:
+      - static:/staticfiles/
+    depends_on:
+      - backend_foodgram
+    ports:
+      - 8888:80
