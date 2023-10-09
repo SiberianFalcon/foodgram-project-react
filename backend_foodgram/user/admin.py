@@ -38,33 +38,27 @@ class UserChangeForm(forms.ModelForm):
 
     class Meta:
         model = CustomUser
-        fields = ['email', 'password', 'username',
-                  'first_name', 'last_name', 'is_active', 'is_admin']
+        fields = [
+            'email', 'password', 'username', 'first_name', 
+            'last_name', 'is_active', 'is_admin']
 
 
 class UserAdmin(BaseUserAdmin):
     form = UserChangeForm
     add_form = UserCreationForm
 
-    list_display = ['id', 'email', 'username', 'first_name',
-                    'last_name', 'is_admin']
+    list_display = [
+        'id', 'email', 'username', 'first_name', 'last_name', 'is_admin']
     list_filter = ['is_admin']
     fieldsets = [
         (None, {'fields': ['email', 'password']}),
         ('Personal info', {'fields': ['username',
                                       'first_name', 'last_name']}),
-        ('Permissions', {'fields': ['is_admin']}),
-    ]
+        ('Permissions', {'fields': ['is_admin']}),]
     add_fieldsets = [
-        (
-            None,
-            {
-                'classes': ['wide'],
+        (None, {'classes': ['wide'],
                 'fields': ['email', 'username', 'first_name',
-                           'last_name', 'password1', 'password2'],
-            },
-        ),
-    ]
+                           'last_name', 'password1', 'password2'],},),]
     search_fields = ['email']
     ordering = ['email']
     filter_horizontal = []

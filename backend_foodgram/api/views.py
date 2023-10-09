@@ -7,17 +7,17 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
-from core.tools import (form_ingredients_list,
-                        generate_ingredients_list_via_pdf,
-                        get_user_and_recipe_or_404)
-from .models import (Ingredient, Recipe, RecipeIngredient, ShoppingCart,
-                            Subscription, Tag)
+from core.tools import (
+    form_ingredients_list, generate_ingredients_list_via_pdf, 
+    get_user_and_recipe_or_404)
+from .models import (
+    Ingredient, Recipe, RecipeIngredient, ShoppingCart, Subscription, Tag)
 from .filters import IngredientSearchFilter, RecipeFilter
 from .pagination import PageLimitPagination
-from .serializers import (IngredientSerializer, RecipeInFavoriteSerializer,
-                          RecipeSerializer, ShortRecipeInFavoriteSerializer,
-                          ShortSubscriptionSerializer, SubscriptionSerializer,
-                          TagSerializer)
+from .serializers import (
+    IngredientSerializer, RecipeInFavoriteSerializer, RecipeSerializer, 
+    ShortRecipeInFavoriteSerializer, ShortSubscriptionSerializer, 
+    SubscriptionSerializer, TagSerializer)
 
 User = get_user_model()
 
@@ -29,11 +29,9 @@ class CustomUserViewSet(UserViewSet):
             permission_classes=[IsAuthenticated])
     def subscriptions(self, request):
         paginator = self.paginate_queryset(
-            User.objects.filter(subscribers__follower=self.request.user)
-        )
-        serializer = SubscriptionSerializer(paginator,
-                                            many=True,
-                                            context={'request': self.request})
+            User.objects.filter(subscribers__follower=self.request.user))
+        serializer = SubscriptionSerializer(
+            paginator, many=True, context={'request': self.request})
         return self.get_paginated_response(serializer.data)
 
     @action(methods=['post'], detail=True,
@@ -42,8 +40,7 @@ class CustomUserViewSet(UserViewSet):
         data = {'follower': request.user.id,
                 'following': self.get_object().id}
         serializer = ShortSubscriptionSerializer(
-            data=data,
-            context={'request': request})
+            data=data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status.HTTP_201_CREATED)
@@ -51,9 +48,8 @@ class CustomUserViewSet(UserViewSet):
     @subscribe.mapping.delete
     def unsubscribe(self, request, id):
         user = request.user
-        subscription = get_object_or_404(Subscription,
-                                         following=id,
-                                         follower=user)
+        subscription = get_object_or_404(
+            Subscription, following=id, follower=user)
         subscription.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -88,8 +84,7 @@ class RecipeViewSet(ModelViewSet):
         data = {'user': user.id,
                 'recipe': recipe.id}
         serializer = ShortRecipeInFavoriteSerializer(
-            data=data,
-            context={'request': self.request})
+            data=data, context={'request': self.request})
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -102,7 +97,7 @@ class RecipeViewSet(ModelViewSet):
             favorite_recipe.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(
-            {'error': 'This recipe is not in the favorites list'},
+            {'error': 'Этот рецепт не в списке избранного'},
             status=status.HTTP_400_BAD_REQUEST
         )
 
@@ -111,29 +106,24 @@ class RecipeViewSet(ModelViewSet):
     def shopping_cart(self, request, pk):
         user, recipe = get_user_and_recipe_or_404(request, pk)
         recipe_in_shopping_cart = user.recipes_in_shopping_cart.filter(
-            recipe=recipe
-        )
+            recipe=recipe)
         if recipe_in_shopping_cart.exists():
             return Response(
-                {'This recipe is already in shopping cart.'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+                {'Этот рецепт уже в списке покупок'}, 
+                status=status.HTTP_400_BAD_REQUEST)
         ShoppingCart.objects.create(user=user, recipe=recipe)
         serializer = RecipeInFavoriteSerializer(
-            recipe, context={'request': request}
-        )
+            recipe, context={'request': request})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @shopping_cart.mapping.delete
     def remove_from_shopping_cart(self, request, pk):
         user, recipe = get_user_and_recipe_or_404(request, pk)
         recipe_in_shopping_cart = user.recipes_in_shopping_cart.filter(
-            recipe=recipe
-        )
+            recipe=recipe)
         if not recipe_in_shopping_cart.exists():
             return Response({
-                'error': 'This recipe is not in the shopping_cart'
-            },
+                'error': 'Этот рецепт не в списке покупок'},
                 status=status.HTTP_400_BAD_REQUEST)
         recipe_in_shopping_cart.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -144,9 +134,6 @@ class RecipeViewSet(ModelViewSet):
         user = request.user
         ingredients = RecipeIngredient.objects.filter(
             recipe__shopping_by__user=user).values_list(
-            'ingredient__name',
-            'ingredient__measurement_unit',
-            'amount'
-        )
+            'ingredient__name', 'ingredient__measurement_unit', 'amount')
         ingredients_list = form_ingredients_list(ingredients)
         return generate_ingredients_list_via_pdf(ingredients_list)
