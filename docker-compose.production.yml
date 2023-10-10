@@ -1,0 +1,39 @@
+version: '3'
+
+volumes:
+  foodgram_data:
+  static:
+  media:
+
+services:
+
+  fdb:
+    image: postgres:13.10
+    env_file: .env
+    volumes:
+      - foodgram_data:/var/lib/postgresql/data
+
+  backend_foodgram:
+    image: siberianfalcon/foodgram_backend
+    env_file: .env
+    volumes:
+      - static:/backend_static
+      - media:/media
+    depends_on:
+      - fdb
+
+  frontend:
+    env_file: .env
+    image: siberianfalcon/foodgram_frontend
+    command: cp -r /app/build/. /frontend_static/
+    volumes:
+      - static:/frontend_static
+
+  gateway:
+    image: siberianfalcon/foodgram_gateway
+    volumes:
+      - static:/staticfiles/
+    depends_on:
+      - backend_foodgram
+    ports:
+      - 8888:80
