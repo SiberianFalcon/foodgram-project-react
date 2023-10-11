@@ -112,8 +112,8 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'collected_static'
 
-MEDIA_URL = '/recipes/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'recipes')
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 FONT_ROOT = os.path.join(BASE_DIR, 'core')
 
