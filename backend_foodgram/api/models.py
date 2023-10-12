@@ -46,10 +46,10 @@ class Recipe(models.Model):
     text = models.TextField()
     cooking_time = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(
-            limit_value=MIN_VALUE,message='Временной период слишком мал'),
-        MaxValueValidator(
+            limit_value=MIN_VALUE, message='Временной период слишком мал'),
+            MaxValueValidator(
             limit_value=MAX_VALUE, message='Временной период слишком велик')
-    ])
+        ])
     publication_date = models.DateTimeField(
         auto_now_add=True, db_index=True)
 
@@ -103,7 +103,7 @@ class Favorite(models.Model):
 
 class ShoppingCart(models.Model):
     user = models.ForeignKey(
-        User, related_name='recipes_in_shopping_cart', 
+        User, related_name='recipes_in_shopping_cart',
         on_delete=models.CASCADE)
     recipe = models.ForeignKey(
         Recipe, related_name='shopping_by', on_delete=models.CASCADE)

@@ -54,11 +54,11 @@ class UserAdmin(BaseUserAdmin):
         (None, {'fields': ['email', 'password']}),
         ('Personal info', {'fields': ['username',
                                       'first_name', 'last_name']}),
-        ('Permissions', {'fields': ['is_admin']}),]
+        ('Permissions', {'fields': ['is_admin']}), ]
     add_fieldsets = [
         (None, {'classes': ['wide'],
                 'fields': ['email', 'username', 'first_name',
-                           'last_name', 'password1', 'password2'], },),]
+                           'last_name', 'password1', 'password2'], }, ), ]
     search_fields = ['email']
     ordering = ['email']
     filter_horizontal = []
