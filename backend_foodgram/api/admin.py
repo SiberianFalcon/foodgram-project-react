@@ -3,8 +3,9 @@ from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 
 
-from .models import (Favorite, Ingredient, Recipe, RecipeIngredient,
-                     ShoppingCart, Subscription, Tag)
+from .models import (
+    Favorite, Ingredient, Recipe, 
+    RecipeIngredient, ShoppingCart, Subscription, Tag)
 
 admin.site.register(Tag)
 admin.site.register(Subscription)
@@ -47,4 +48,4 @@ class IngredientAdmin(ImportExportModelAdmin):
 admin.site.register(Recipe, RecipeAdmin)
 admin.site.register(Ingredient)
 admin.site.register(RecipeIngredient)
-admin.site.register(IngredientResource, IngredientAdmin)
+admin.site.register(IngredientAdmin)
