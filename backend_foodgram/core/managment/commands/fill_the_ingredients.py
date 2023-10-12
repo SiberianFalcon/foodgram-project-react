@@ -8,7 +8,7 @@ from . import ingredients
 
 class Command(BaseCommand):
 
-    def add_ingredient_objects_in_database(self, *args, **options):
+    def handle(self, *args, **options):
         with open(ingredients, 'r', encoding="utf-8") as file:
             csv_reader = csv.reader(file)
             ingredient_list = [Ingredient(
