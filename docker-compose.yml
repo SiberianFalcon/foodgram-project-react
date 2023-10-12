@@ -18,7 +18,7 @@ services:
     env_file: .env
     volumes:
       - static:/backend_static
-      - media:/media
+      - media:/app/media
     depends_on:
       - fdb
 
@@ -28,13 +28,13 @@ services:
     command: cp -r /app/build/. /frontend_static/
     volumes:
       - static:/frontend_static
-      - media:/media
+      - media:/app/media
 
   gateway:
     build: ./gateway/
     volumes:
       - static:/staticfiles/
-      - media:/media
+      - media:/app/media
       - ./nginx.conf:/etc/nginx/conf
       - ../frontend/build:/usr/share/nginx/html/
       - ../docs/:/usr/share/nginx/html/api/docs/
