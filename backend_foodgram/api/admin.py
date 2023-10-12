@@ -20,7 +20,7 @@ class RecipeAdmin(admin.ModelAdmin):
 
 class IngredientAdmin(admin.ModelAdmin):
     inlines = (RecipeIngredientInline, )
-
+#
 
 class BookResource(resources.ModelResource):
 
