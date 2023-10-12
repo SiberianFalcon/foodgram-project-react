@@ -1,10 +1,10 @@
 from django.contrib import admin
-
-from .models import (Favorite, Ingredient, Recipe, RecipeIngredient,
-                     ShoppingCart, Subscription, Tag)
-
-
+from import_export import resources
 from import_export.admin import ImportExportModelAdmin
+
+from .models import (
+    Favorite, Ingredient, Recipe, 
+    RecipeIngredient, ShoppingCart, Subscription, Tag)
 
 
 class RecipeIngredientInline(admin.TabularInline):
@@ -22,17 +22,21 @@ class IngredientAdmin(admin.ModelAdmin):
     inlines = (RecipeIngredientInline, )
 
 
+class BookResource(resources.ModelResource):
 
-class BookAdmin(ImportExportModelAdmin, admin.ModelAdmin):
-    ...
+    class Meta:
+        model = Ingredient
 
-admin.site.register(Ingredient, BookAdmin)
+
+class IngredientExport(ImportExportModelAdmin):
+    resource_classes = [BookResource]
 
 
 admin.site.register(Tag)
-admin.site.register(Subscription)
 admin.site.register(Favorite)
 admin.site.register(ShoppingCart)
-admin.site.register(Recipe)
-
-admin.site.register(RecipeIngredient, RecipeAdmin)
+admin.site.register(Subscription)
+admin.site.register(IngredientAdmin)
+admin.site.register(RecipeIngredient)
+admin.site.register(Recipe, RecipeAdmin)
+admin.site.register(Ingredient, IngredientExport)

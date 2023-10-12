@@ -1,8 +1,9 @@
 from colorfield.fields import ColorField
 from django.contrib.auth import get_user_model
-from django.core.validators import (MaxValueValidator, MinValueValidator,
-                                    RegexValidator)
+from django.core.validators import (
+    MaxValueValidator, MinValueValidator, RegexValidator)
 from django.db import models
+
 
 MIN_VALUE = 1
 MAX_VALUE = 32000
