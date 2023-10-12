@@ -4,8 +4,9 @@ from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from .models import (Favorite, Ingredient, Recipe, RecipeIngredient,
-                            Subscription, Tag)
+from .models import (
+    Favorite, Ingredient, Recipe,
+    RecipeIngredient, Subscription, Tag)
 
 MIN_VALUE = 1
 MAX_VALUE = 32000
@@ -26,8 +27,8 @@ class CustomUserSerializer(UserSerializer):
     class Meta:
         model = User
         fields = (
-            'email', 'id', 'username', 'first_name', 'last_name', 
-            'is_subscribed',)
+            'email', 'id', 'username', 'first_name',
+            'last_name', 'is_subscribed',)
 
     def get_is_subscribed(self, obj):
         request = self.context['request']

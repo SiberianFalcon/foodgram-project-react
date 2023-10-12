@@ -8,15 +8,15 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
 from core.tools import (
-    form_ingredients_list, generate_ingredients_list_via_pdf, 
+    form_ingredients_list, generate_ingredients_list_via_pdf,
     get_user_and_recipe_or_404)
 from .models import (
     Ingredient, Recipe, RecipeIngredient, ShoppingCart, Subscription, Tag)
 from .filters import IngredientSearchFilter, RecipeFilter
 from .pagination import PageLimitPagination
 from .serializers import (
-    IngredientSerializer, RecipeInFavoriteSerializer, RecipeSerializer, 
-    ShortRecipeInFavoriteSerializer, ShortSubscriptionSerializer, 
+    IngredientSerializer, RecipeInFavoriteSerializer, RecipeSerializer,
+    ShortRecipeInFavoriteSerializer, ShortSubscriptionSerializer,
     SubscriptionSerializer, TagSerializer)
 
 User = get_user_model()
@@ -109,7 +109,7 @@ class RecipeViewSet(ModelViewSet):
             recipe=recipe)
         if recipe_in_shopping_cart.exists():
             return Response(
-                {'Этот рецепт уже в списке покупок'}, 
+                {'Этот рецепт уже в списке покупок'},
                 status=status.HTTP_400_BAD_REQUEST)
         ShoppingCart.objects.create(user=user, recipe=recipe)
         serializer = RecipeInFavoriteSerializer(

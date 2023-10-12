@@ -39,7 +39,7 @@ class UserChangeForm(forms.ModelForm):
     class Meta:
         model = CustomUser
         fields = [
-            'email', 'password', 'username', 'first_name', 
+            'email', 'password', 'username', 'first_name',
             'last_name', 'is_active', 'is_admin']
 
 
@@ -58,7 +58,7 @@ class UserAdmin(BaseUserAdmin):
     add_fieldsets = [
         (None, {'classes': ['wide'],
                 'fields': ['email', 'username', 'first_name',
-                           'last_name', 'password1', 'password2'],},),]
+                           'last_name', 'password1', 'password2'], },),]
     search_fields = ['email']
     ordering = ['email']
     filter_horizontal = []

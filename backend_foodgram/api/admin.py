@@ -3,7 +3,7 @@ from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 
 from .models import (
-    Favorite, Ingredient, Recipe, 
+    Favorite, Ingredient, Recipe,
     RecipeIngredient, ShoppingCart, Subscription, Tag)
 
 
@@ -20,7 +20,7 @@ class RecipeAdmin(admin.ModelAdmin):
 
 class IngredientAdmin(admin.ModelAdmin):
     inlines = (RecipeIngredientInline, )
-#
+
 
 class BookResource(resources.ModelResource):
 

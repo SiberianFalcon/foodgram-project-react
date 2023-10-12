@@ -19,7 +19,7 @@ class CustomUserManager(BaseUserManager):
     def create_superuser(self, email, username, first_name,
                          last_name, password=None):
         user = self.create_user(
-            email, password=password, username=username, 
+            email, password=password, username=username,
             first_name=first_name, last_name=last_name,)
         user.is_admin = True
         user.save(using=self._db)
@@ -31,11 +31,11 @@ class CustomUser(AbstractBaseUser):
         'email address', max_length=255, unique=True)
     username = models.CharField(
         max_length=150, unique=True, help_text=(
-            'Обязательно. Не более 150 знаков.' 
+            'Обязательно. Не более 150 знаков.'
             'Применимы только латинские буквы, цифры и символы @/./+/-/_'),
         validators=[UnicodeUsernameValidator],
         error_messages={
-            'unique': 'Пользователь с таким именем уже существует',})
+            'unique': 'Пользователь с таким именем уже существует', })
     first_name = models.CharField('first name', max_length=150)
     last_name = models.CharField('last name', max_length=150)
     is_active = models.BooleanField(default=True)
