@@ -18,25 +18,21 @@ class RecipeAdmin(admin.ModelAdmin):
     list_display = ['id', 'name']
 
 
-# class IngredientAdmin(admin.ModelAdmin):
-#     inlines = (RecipeIngredientInline, )
+class IngredientAdmin(admin.ModelAdmin):
+    inlines = (RecipeIngredientInline, )
 
 
-class BookResource(resources.ModelResource):
 
-    class Meta:
-        model = [Ingredient]
+class BookAdmin(ImportExportModelAdmin, admin.ModelAdmin):
+    ...
 
+admin.site.register(Ingredient, BookAdmin)
 
-class BookAdmin(ImportExportModelAdmin):
-    resource_classes = [BookResource]
 
 admin.site.register(Tag)
 admin.site.register(Subscription)
 admin.site.register(Favorite)
 admin.site.register(ShoppingCart)
 admin.site.register(Recipe)
-admin.site.register(Ingredient)
+# admin.site.register(Ingredient)
 admin.site.register(RecipeIngredient)
-
-admin.site.register(RecipeAdmin)
