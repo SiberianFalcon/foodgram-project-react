@@ -27,12 +27,14 @@ services:
     build: ./frontend/
     command: cp -r /app/build/. /frontend_static/
     volumes:
-      - static:/frontend_static
+      - static:/backend_static
+      - media:/app/media/
 
   gateway:
     build: ./gateway/
     volumes:
       - static:/staticfiles/
+      - media:/media/
     depends_on:
       - backend_foodgram
     ports:
