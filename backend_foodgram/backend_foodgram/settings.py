@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'colorfield',
 
     'api',
+    'core',
     'user',
 ]
 
