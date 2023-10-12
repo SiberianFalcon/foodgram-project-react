@@ -3,7 +3,7 @@ from django.contrib import admin
 from .models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                      ShoppingCart, Subscription, Tag)
 
-from import_export import resources
+
 from import_export.admin import ImportExportModelAdmin
 
 
@@ -34,5 +34,5 @@ admin.site.register(Subscription)
 admin.site.register(Favorite)
 admin.site.register(ShoppingCart)
 admin.site.register(Recipe)
-# admin.site.register(Ingredient)
-admin.site.register(RecipeIngredient)
+
+admin.site.register(RecipeIngredient, RecipeAdmin)
