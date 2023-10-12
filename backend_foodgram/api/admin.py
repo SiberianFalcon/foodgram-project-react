@@ -30,7 +30,7 @@ class BookResource(resources.ModelResource):
 
 class IngredientExport(ImportExportModelAdmin):
     resource_classes = [BookResource]
-#
+
 
 admin.site.register(Tag)
 admin.site.register(Favorite)
