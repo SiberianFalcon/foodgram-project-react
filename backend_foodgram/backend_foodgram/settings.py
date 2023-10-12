@@ -30,9 +30,9 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'djoser',
     'colorfield',
-
-    'api',
+    
     'core',
+    'api',
     'user',
 ]
 
