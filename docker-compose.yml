@@ -35,9 +35,6 @@ services:
     volumes:
       - static:/staticfiles/
       - media:/app/media
-      - ./nginx.conf:/etc/nginx/conf
-      - ../frontend/build:/usr/share/nginx/html/
-      - ../docs/:/usr/share/nginx/html/api/docs/
     depends_on:
       - backend_foodgram
     ports:
