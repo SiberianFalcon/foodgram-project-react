@@ -1,16 +1,10 @@
 from django.contrib import admin
+
+from .models import (Favorite, Ingredient, Recipe, RecipeIngredient,
+                     ShoppingCart, Subscription, Tag)
+
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin
-
-
-from .models import (
-    Favorite, Ingredient, Recipe, 
-    RecipeIngredient, ShoppingCart, Subscription, Tag)
-
-admin.site.register(Tag)
-admin.site.register(Subscription)
-admin.site.register(Favorite)
-admin.site.register(ShoppingCart)
 
 
 class RecipeIngredientInline(admin.TabularInline):
@@ -27,25 +21,22 @@ class RecipeAdmin(admin.ModelAdmin):
 # class IngredientAdmin(admin.ModelAdmin):
 #     inlines = (RecipeIngredientInline, )
 
-class IngredientResource(resources.ModelResource):
-    """Управление Ингридиентами через админку."""
+
+class BookResource(resources.ModelResource):
 
     class Meta:
-        model = Ingredient
+        model = [Ingredient]
 
 
-class IngredientAdmin(ImportExportModelAdmin):
-    """Загрузка Ингридиентов из файла через админку."""
+class BookAdmin(ImportExportModelAdmin):
+    resource_classes = [BookResource]
 
-    resource_class = IngredientResource
-    list_display = (
-        "name",
-        "measurement_unit",
-    )
-    search_fields = ("name",)
-
-
-admin.site.register(Recipe, RecipeAdmin)
+admin.site.register(Tag)
+admin.site.register(Subscription)
+admin.site.register(Favorite)
+admin.site.register(ShoppingCart)
+admin.site.register(Recipe)
 admin.site.register(Ingredient)
 admin.site.register(RecipeIngredient)
-admin.site.register(IngredientAdmin)
+
+admin.site.register(RecipeAdmin)
