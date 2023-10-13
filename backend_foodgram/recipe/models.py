@@ -15,8 +15,7 @@ class Tag(models.Model):
     name = models.CharField(max_length=200, unique=True)
     color = ColorField()
     slug = models.SlugField(
-        max_length=200, unique=True, validators=[RegexValidator(
-            regex=r'^[-a-zA-Z0-9_]+$', message='Недопустимое значение слаг')])
+        max_length=200, unique=True)
 
     class Meta:
         ordering = ['slug']
@@ -28,10 +27,11 @@ class Tag(models.Model):
 class Ingredient(models.Model):
     name = models.CharField(max_length=200)
     measurement_unit = models.CharField(
-        blank=True, null=True, max_length=200)
+        blank=True, max_length=200)
 
     class Meta:
         ordering = ['name']
+        unique_together = ('name', 'measurement_unit')
 
     def __str__(self):
         return self.name
@@ -65,8 +65,7 @@ class RecipeIngredient(models.Model):
         Recipe, on_delete=models.CASCADE, related_name='ingredients')
     ingredient = models.ForeignKey(
         Ingredient, related_name='recipes', on_delete=models.CASCADE)
-    amount = models.PositiveSmallIntegerField(
-        blank=True, null=True, validators=[
+    amount = models.PositiveSmallIntegerField(validators=[
             MaxValueValidator(limit_value=MAX_VALUE,
                               message='Значение превышено'),
             MinValueValidator(limit_value=MIN_VALUE,

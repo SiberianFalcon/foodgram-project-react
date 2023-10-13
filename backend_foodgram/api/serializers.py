@@ -39,12 +39,12 @@ class CustomUserSerializer(UserSerializer):
 
 
 class SubscriptionSerializer(CustomUserSerializer):
-    email = serializers.ReadOnlyField()
+    email = serializers.RelatedField(read_only=True)
     username = serializers.ReadOnlyField()
     first_name = serializers.ReadOnlyField()
     last_name = serializers.ReadOnlyField()
-    recipes = serializers.SerializerMethodField(read_only=True)
-    recipes_count = serializers.SerializerMethodField(read_only=True)
+    recipes = serializers.SerializerMethodField()
+    recipes_count = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -97,24 +97,16 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 
 class IngredientInRecipeSerializer(serializers.ModelSerializer):
-    id = serializers.SerializerMethodField()
-    name = serializers.SerializerMethodField()
-    measurement_unit = serializers.SerializerMethodField()
-    amount = serializers.IntegerField(min_value=MIN_VALUE,
-                                      max_value=MAX_VALUE)
+    id = serializers.SerializerMethodField(source='ingredient.name')
+    name = serializers.SerializerMethodField(source='ingredient.id')
+    measurement_unit = serializers.SerializerMethodField(
+        source='ingredient.measurement_unit')
+    amount = serializers.IntegerField(
+        min_value=MIN_VALUE, max_value=MAX_VALUE)
 
     class Meta:
         model = RecipeIngredient
         fields = ('id', 'name', 'measurement_unit', 'amount')
-
-    def get_name(self, obj):
-        return obj.ingredient.name
-
-    def get_id(self, obj):
-        return obj.ingredient.id
-
-    def get_measurement_unit(self, obj):
-        return obj.ingredient.measurement_unit
 
 
 class RecipeSerializer(serializers.ModelSerializer):
@@ -177,21 +169,17 @@ class RecipeSerializer(serializers.ModelSerializer):
         RecipeIngredient.objects.bulk_create(recipe_ingredients)
 
     def create(self, validated_data):
-        image = validated_data.pop('image')
         ingredients_data = self.initial_data.pop('ingredients', '')
         validated_data.pop('ingredients', '')
-        recipe = Recipe.objects.create(image=image, **validated_data)
+        recipe = Recipe.objects.create(
+            image=validated_data.pop('image'), **validated_data)
         tags_data = self.initial_data.get('tags')
         recipe.tags.set(tags_data)
         self.update_or_create_ingredient_amount(ingredients_data, recipe)
         return recipe
 
     def update(self, recipe, validated_data):
-        recipe.image = validated_data.get('image', recipe.image)
-        recipe.name = validated_data.get('name', recipe.name)
-        recipe.text = validated_data.get('text', recipe.text)
-        recipe.cooking_time = validated_data.get(
-            'cooking_time', recipe.cooking_time)
+        super().update(recipe, validated_data)
         recipe.tags.clear()
         tags_data = self.initial_data.get('tags')
         recipe.tags.set(tags_data)
@@ -207,7 +195,7 @@ class RecipeInFavoriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
-        read_only = '__all__'
+        read_only = ('id', 'name', 'image', 'cooking_time')
 
 
 class ShortRecipeInFavoriteSerializer(serializers.ModelSerializer):
