@@ -5,9 +5,6 @@ from django.core.validators import (
 from django.db import models
 
 
-MIN_VALUE = 1
-MAX_VALUE = 32000
-
 User = get_user_model()
 
 
@@ -46,9 +43,9 @@ class Recipe(models.Model):
     text = models.TextField()
     cooking_time = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(
-            limit_value=MIN_VALUE, message='Временной период слишком мал'),
+            limit_value=1, message='Временной период слишком мал'),
             MaxValueValidator(
-            limit_value=MAX_VALUE, message='Временной период слишком велик')
+            limit_value=32000, message='Временной период слишком велик')
         ])
     publication_date = models.DateTimeField(
         auto_now_add=True, db_index=True)
@@ -66,9 +63,9 @@ class RecipeIngredient(models.Model):
     ingredient = models.ForeignKey(
         Ingredient, related_name='recipes', on_delete=models.CASCADE)
     amount = models.PositiveSmallIntegerField(validators=[
-            MaxValueValidator(limit_value=MAX_VALUE,
+            MaxValueValidator(limit_value=32000,
                               message='Значение превышено'),
-            MinValueValidator(limit_value=MIN_VALUE,
+            MinValueValidator(limit_value=1,
                               message='Значение слишком мало')])
 
     class Meta:
