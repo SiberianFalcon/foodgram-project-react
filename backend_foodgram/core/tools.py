@@ -7,7 +7,7 @@ from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
 from rest_framework.generics import get_object_or_404
 
-from api.models import Recipe
+from recipe.models import Recipe
 
 FONT_SIZE = 24
 HEIGHT = 750

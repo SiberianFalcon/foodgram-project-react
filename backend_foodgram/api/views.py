@@ -10,7 +10,7 @@ from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from core.tools import (
     form_ingredients_list, generate_ingredients_list_via_pdf,
     get_user_and_recipe_or_404)
-from .models import (
+from recipe.models import (
     Ingredient, Recipe, RecipeIngredient, ShoppingCart, Subscription, Tag)
 from .filters import IngredientSearchFilter, RecipeFilter
 from .pagination import PageLimitPagination
