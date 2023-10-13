@@ -97,9 +97,9 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 
 class IngredientInRecipeSerializer(serializers.ModelSerializer):
-    id = serializers.SerializerMethodField(source='ingredient.name')
-    name = serializers.SerializerMethodField(source='ingredient.id')
-    measurement_unit = serializers.SerializerMethodField(
+    id = serializers.ReadOnlyField(source='ingredient.id')
+    name = serializers.ReadOnlyField(source='ingredient.name')
+    measurement_unit = serializers.ReadOnlyField(
         source='ingredient.measurement_unit')
     amount = serializers.IntegerField(
         min_value=MIN_VALUE, max_value=MAX_VALUE)
@@ -169,17 +169,17 @@ class RecipeSerializer(serializers.ModelSerializer):
         RecipeIngredient.objects.bulk_create(recipe_ingredients)
 
     def create(self, validated_data):
+        image = validated_data.pop('image')
         ingredients_data = self.initial_data.pop('ingredients', '')
         validated_data.pop('ingredients', '')
-        recipe = Recipe.objects.create(
-            image=validated_data.pop('image'), **validated_data)
+        recipe = Recipe.objects.create(image=image, **validated_data)
         tags_data = self.initial_data.get('tags')
         recipe.tags.set(tags_data)
         self.update_or_create_ingredient_amount(ingredients_data, recipe)
         return recipe
 
     def update(self, recipe, validated_data):
-        super().update(recipe, validated_data)
+        super.update(recipe, validated_data)
         recipe.tags.clear()
         tags_data = self.initial_data.get('tags')
         recipe.tags.set(tags_data)
