@@ -69,10 +69,10 @@ class RecipeIngredient(models.Model):
     ingredient = models.ForeignKey(
         Ingredient, related_name='recipes', on_delete=models.CASCADE)
     amount = models.PositiveSmallIntegerField(validators=[
-            MaxValueValidator(limit_value=32000,
-                              message='Значение превышено'),
-            MinValueValidator(limit_value=1,
-                              message='Значение слишком мало')])
+        MaxValueValidator(
+            limit_value=32000, message='Значение превышено'),
+        MinValueValidator(
+            limit_value=1, message='Значение слишком мало')])
 
     class Meta:
         ordering = ['-recipe']
