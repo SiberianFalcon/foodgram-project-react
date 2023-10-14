@@ -15,7 +15,7 @@ class RecipeIngredientInline(admin.TabularInline):
 
 class RecipeAdmin(admin.ModelAdmin):
     inlines = (RecipeIngredientInline,)
-    list_display = ['id', 'name']
+    list_display = ('id', 'name')
 
 
 class BookResource(resources.ModelResource):

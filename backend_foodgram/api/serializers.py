@@ -39,10 +39,10 @@ class CustomUserSerializer(UserSerializer):
 
 
 class SubscriptionSerializer(CustomUserSerializer):
-    email = serializers.RelatedField(read_only=True)
-    username = serializers.ReadOnlyField()
-    first_name = serializers.ReadOnlyField()
-    last_name = serializers.ReadOnlyField()
+    email = serializers.EmailField()
+    username = serializers.StringRelatedField()
+    first_name = serializers.StringRelatedField()
+    last_name = serializers.StringRelatedField()
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
 
@@ -169,10 +169,10 @@ class RecipeSerializer(serializers.ModelSerializer):
         RecipeIngredient.objects.bulk_create(recipe_ingredients)
 
     def create(self, validated_data):
-        image = validated_data.pop('image')
         ingredients_data = self.initial_data.pop('ingredients', '')
         validated_data.pop('ingredients', '')
-        recipe = Recipe.objects.create(image=image, **validated_data)
+        recipe = Recipe.objects.create(
+            image=validated_data.pop('image'), **validated_data)
         tags_data = self.initial_data.get('tags')
         recipe.tags.set(tags_data)
         self.update_or_create_ingredient_amount(ingredients_data, recipe)

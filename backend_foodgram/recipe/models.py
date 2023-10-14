@@ -5,6 +5,8 @@ from django.core.validators import (
     MaxValueValidator, MinValueValidator)
 from django.db import models
 
+from .constants import *
+
 
 User = get_user_model()
 
@@ -13,7 +15,7 @@ class Tag(models.Model):
     name = models.CharField(max_length=200, unique=True)
     color = ColorField()
     slug = models.SlugField(
-        max_length=200, unique=True)
+        max_length=MAX_LENGHT, unique=True)
 
     class Meta:
         ordering = ['slug']
@@ -29,8 +31,7 @@ class Tag(models.Model):
 
 class Ingredient(models.Model):
     name = models.CharField(max_length=200)
-    measurement_unit = models.CharField(
-        blank=True, max_length=200)
+    measurement_unit = models.CharField(max_length=200)
 
     class Meta:
         ordering = ['name']
