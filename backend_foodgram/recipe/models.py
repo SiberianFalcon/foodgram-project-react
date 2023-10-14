@@ -37,7 +37,7 @@ class Ingredient(models.Model):
         ordering = ['name']
         constraints = (
             models.UniqueConstraint(
-                fields=('name', 'measurment_unit'),
+                fields=('name', 'measurement_unit'),
                 name='not_pair_names'
             ),
         )
