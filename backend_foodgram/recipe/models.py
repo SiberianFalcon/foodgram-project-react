@@ -5,14 +5,14 @@ from django.core.validators import (
     MaxValueValidator, MinValueValidator)
 from django.db import models
 
-from .constants import *
+from .constants import MAX_LENGHT, MAX_VALUE, MIN_VALUE
 
 
 User = get_user_model()
 
 
 class Tag(models.Model):
-    name = models.CharField(max_length=200, unique=True)
+    name = models.CharField(max_length=MAX_LENGHT, unique=True)
     color = ColorField()
     slug = models.SlugField(
         max_length=MAX_LENGHT, unique=True)
@@ -30,12 +30,17 @@ class Tag(models.Model):
 
 
 class Ingredient(models.Model):
-    name = models.CharField(max_length=200)
-    measurement_unit = models.CharField(max_length=200)
+    name = models.CharField(max_length=MAX_LENGHT)
+    measurement_unit = models.CharField(max_length=MAX_LENGHT)
 
     class Meta:
         ordering = ['name']
-        unique_together = ('name', 'measurement_unit')
+        constraints = (
+            models.UniqueConstraint(
+                fields=('name', 'measurment_unit'),
+                name='not_pair_names'
+            )
+        )
 
     def __str__(self):
         return self.name
@@ -46,13 +51,13 @@ class Recipe(models.Model):
         User, on_delete=models.CASCADE, related_name='recipes')
     tags = models.ManyToManyField(Tag, related_name='recipes')
     image = models.ImageField()
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=MAX_LENGHT)
     text = models.TextField()
     cooking_time = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(
-            limit_value=1, message='Временной период слишком мал'),
+            limit_value=MIN_VALUE, message='Временной период слишком мал'),
             MaxValueValidator(
-            limit_value=32000, message='Временной период слишком велик')
+            limit_value=MAX_VALUE, message='Временной период слишком велик')
         ])
     publication_date = models.DateTimeField(
         auto_now_add=True, db_index=True)
@@ -71,9 +76,9 @@ class RecipeIngredient(models.Model):
         Ingredient, related_name='recipes', on_delete=models.CASCADE)
     amount = models.PositiveSmallIntegerField(validators=[
         MaxValueValidator(
-            limit_value=32000, message='Значение превышено'),
+            limit_value=MAX_VALUE, message='Значение превышено'),
         MinValueValidator(
-            limit_value=1, message='Значение слишком мало')])
+            limit_value=MIN_VALUE, message='Значение слишком мало')])
 
     class Meta:
         ordering = ['-recipe']
