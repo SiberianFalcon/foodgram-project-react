@@ -39,7 +39,7 @@ class Ingredient(models.Model):
             models.UniqueConstraint(
                 fields=('name', 'measurment_unit'),
                 name='not_pair_names'
-            )
+            ),
         )
 
     def __str__(self):
