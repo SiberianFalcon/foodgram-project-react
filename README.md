@@ -19,6 +19,12 @@ HOST_4   #домен удалённого сервера
 SECRET_KEY   #секретный ключ (смотреть в настройках джанго проекта в файле settings.py)
 ```
 4) запустите Docker на своём компьютере и из корневой директории выполните в терминале команду ```docker compose -f docker-compose.yml up```
-5) откройте браузер и перейдите по адресу ```http://localhost:8888/```
+5) применить миграции docker-compose exec web python manage.py migrate
+6) создать суперпользователя командой docker-compose exec web python manage.py createsuperuser
+7) собрать файлы статики для сервера nginx docker-compose exec web python manage.py collectstatic --no-input
+8) откройте браузер и перейдите по адресу ```http://localhost:8888/```
+
+## Для заполнения списка ингредиентов
+Внутри проекта реализован механизм импорта .csv .xls .xlsx .json .yaml .tsv файлов в которых необходимо указать необходимые игредиенты. В проекте есть готовый файл с шаблоном и списком ингредиентов ingredient.json по адресу ```data\ingredients.json```. Можете использовать его, либо создать собственный список.
 
 ### Автор проекта - [Георгий Соколов](https://github.com/SiberianFalcon)
