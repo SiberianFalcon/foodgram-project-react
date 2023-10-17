@@ -80,7 +80,6 @@ class RecipeViewSet(ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
-
     @action(methods=['post'], detail=True,
             permission_classes=[IsAuthenticated])
     def favorite(self, request, pk):
