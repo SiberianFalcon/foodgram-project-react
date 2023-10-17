@@ -3,7 +3,8 @@ from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import (
+    IsAuthenticated, IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
@@ -17,19 +18,24 @@ from .pagination import PageLimitPagination
 from .serializers import (
     IngredientSerializer, RecipeInFavoriteSerializer, RecipeSerializer,
     ShortRecipeInFavoriteSerializer, ShortSubscriptionSerializer,
-    SubscriptionSerializer, TagSerializer)
+    SubscriptionSerializer, TagSerializer, CustomUserSerializer)
+
 
 User = get_user_model()
 
 
-class CustomUserViewSet(UserViewSet):
+class CustomUserViewSet(ModelViewSet):
+    queryset = User.objects.all()
     pagination_class = PageLimitPagination
+    serializer_class = CustomUserSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 
     @action(methods=['get'], detail=False,
-            permission_classes=[IsAuthenticated])
+            permission_classes=[IsAuthenticatedOrReadOnly])
     def subscriptions(self, request):
         paginator = self.paginate_queryset(
-            User.objects.filter(subscribers__follower=self.request.user))
+            User.objects.filter(subscribers__follower=self.request.user)
+        )
         serializer = SubscriptionSerializer(
             paginator, many=True, context={'request': self.request})
         return self.get_paginated_response(serializer.data)
@@ -40,7 +46,8 @@ class CustomUserViewSet(UserViewSet):
         data = {'follower': request.user.id,
                 'following': self.get_object().id}
         serializer = ShortSubscriptionSerializer(
-            data=data, context={'request': request})
+            data=data,
+            context={'request': request})
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status.HTTP_201_CREATED)
