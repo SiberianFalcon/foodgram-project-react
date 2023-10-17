@@ -1,16 +1,13 @@
 from django.contrib.auth import get_user_model
-from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.exceptions import NotFound
 from rest_framework.permissions import (
-    IsAuthenticated, IsAuthenticatedOrReadOnly, SAFE_METHODS)
+    IsAuthenticated,)
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
-from djoser.conf import settings
 from core.tools import (
     form_ingredients_list, generate_ingredients_list_via_pdf,
     get_user_and_recipe_or_404)
@@ -21,7 +18,7 @@ from .pagination import PageLimitPagination
 from .serializers import (
     IngredientSerializer, RecipeInFavoriteSerializer, RecipeSerializer,
     ShortRecipeInFavoriteSerializer, ShortSubscriptionSerializer,
-    SubscriptionSerializer, TagSerializer, CustomUserSerializer)
+    SubscriptionSerializer, TagSerializer)
 
 
 User = get_user_model()
@@ -34,11 +31,9 @@ class CustomUserViewSet(UserViewSet):
             permission_classes=[IsAuthenticated])
     def subscriptions(self, request):
         paginator = self.paginate_queryset(
-            User.objects.filter(subscribers__follower=self.request.user)
-        )
-        serializer = SubscriptionSerializer(paginator,
-                                            many=True,
-                                            context={'request': self.request})
+            User.objects.filter(subscribers__follower=self.request.user))
+        serializer = SubscriptionSerializer(
+            paginator, many=True, context={'request': self.request})
         return self.get_paginated_response(serializer.data)
 
     @action(methods=['post'], detail=True,
@@ -56,9 +51,8 @@ class CustomUserViewSet(UserViewSet):
     @subscribe.mapping.delete
     def unsubscribe(self, request, id):
         user = request.user
-        subscription = get_object_or_404(Subscription,
-                                         following=id,
-                                         follower=user)
+        subscription = get_object_or_404(
+            Subscription, following=id, follower=user)
         subscription.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -72,8 +66,7 @@ class TagViewSet(ReadOnlyModelViewSet):
 class IngredientViewSet(ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-    permission_classes = [IsAuthenticated]
-    pagination_class = PageLimitPagination
+    pagination_class = None
     filter_backends = (IngredientSearchFilter,)
     search_fields = ('^name',)
 
@@ -86,6 +79,7 @@ class RecipeViewSet(ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+
 
     @action(methods=['post'], detail=True,
             permission_classes=[IsAuthenticated])
