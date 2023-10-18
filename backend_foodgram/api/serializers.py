@@ -115,7 +115,7 @@ class RecipeSerializer(serializers.ModelSerializer):
     tags = serializers.SerializerMethodField()
     author = serializers.SerializerMethodField()
     image = Base64ImageField()
-    ingredients = IngredientInRecipeSerializer(many=True)
+    ingredients = IngredientInRecipeSerializer(many=True,)
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
     cooking_time = serializers.IntegerField(
@@ -160,10 +160,17 @@ class RecipeSerializer(serializers.ModelSerializer):
         return Response(status.HTTP_401_UNAUTHORIZED)
 
     def update_or_create_ingredient_amount(self, validated_data, recipe):
+        goods = []
+        for i in validated_data:
+            goods.append(i.get('id'))
+        if len(goods) != len(set(goods)):
+            raise serializers.ValidationError(
+                'Ингредиенты не могут повторяться')
+
         if not validated_data:
-            raise serializers.ValidationError({
-                'ingredients':
-                    'Требуется хотя бы один ингредиент для рецепта'})
+            raise serializers.ValidationError(
+                'Требуется хотя бы один ингредиент для рецепта')
+
         recipe_ingredients = [
             RecipeIngredient(
                 ingredient_id=ingredient['id'], amount=ingredient['amount'],
