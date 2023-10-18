@@ -145,15 +145,6 @@ class RecipeSerializer(serializers.ModelSerializer):
         )
         return author_serializer.data
 
-    def validate_ingredients(self, ingredients):
-        ingredient_ids = [ingredient['id'] for ingredient in ingredients]
-
-        # Проверяем, есть ли дубликаты в списке ингредиентов
-        if len(set(ingredient_ids)) != len(ingredient_ids):
-            raise serializers.ValidationError('Нельзя выбирать один ингредиент несколько раз')
-
-        return ingredients
-
     def get_is_favorited(self, obj):
         request = self.context.get('request')
         user = request.user
