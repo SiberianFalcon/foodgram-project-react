@@ -111,8 +111,6 @@ class IngredientInRecipeSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'measurement_unit', 'amount')
 
 
-
-
 class RecipeSerializer(serializers.ModelSerializer):
     tags = serializers.SerializerMethodField()
     author = serializers.SerializerMethodField()
@@ -166,14 +164,11 @@ class RecipeSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({
                 'ingredients':
                     'Требуется хотя бы один ингредиент для рецепта'})
-        existing_ingredients = recipe.ingredients.values_list('ingredient_id', flat=True)
-        for ingredient in validated_data:
-            ingredient_id = ingredient['id']
-            if ingredient_id in existing_ingredients:
-                raise serializers.ValidationError({
-                    'ingredients': 'Ингредиент уже выбран для данного рецепта'})
-            RecipeIngredient.objects.create(
-                ingredient_id=ingredient_id, amount=ingredient['amount'], recipe=recipe)
+        recipe_ingredients = [
+            RecipeIngredient(
+                ingredient_id=ingredient['id'], amount=ingredient['amount'],
+                recipe=recipe) for ingredient in validated_data]
+        RecipeIngredient.objects.bulk_create(recipe_ingredients)
 
     def create(self, validated_data):
         ingredients_data = self.initial_data.pop('ingredients', '')
