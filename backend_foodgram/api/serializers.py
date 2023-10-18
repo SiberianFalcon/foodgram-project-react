@@ -1,7 +1,8 @@
 from django.contrib.auth import get_user_model
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_extra_fields.fields import Base64ImageField
-from rest_framework import serializers
+from rest_framework import serializers, status
+from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 
 from recipe.models import (
@@ -72,6 +73,8 @@ class ShortSubscriptionSerializer(serializers.ModelSerializer):
         following = data.get('following')
         if follower.subscriptions.filter(following=following).exists():
             raise ValidationError({'error': 'Subscription is already exists.'})
+        if not follower.subscriptions.filter(following=following).exists():
+            raise ValidationError({'error': 'You haven\'t subscription'})
         if follower == following:
             raise ValidationError(
                 {'error': 'You can\'t subscribe to yourself.'})
@@ -106,6 +109,8 @@ class IngredientInRecipeSerializer(serializers.ModelSerializer):
     class Meta:
         model = RecipeIngredient
         fields = ('id', 'name', 'measurement_unit', 'amount')
+
+
 
 
 class RecipeSerializer(serializers.ModelSerializer):
@@ -147,25 +152,28 @@ class RecipeSerializer(serializers.ModelSerializer):
         user = request.user
         if user.is_authenticated:
             return user.favorite_recipes.filter(recipe=obj).exists()
-        return False
+        return Response(status.HTTP_401_UNAUTHORIZED)
 
     def get_is_in_shopping_cart(self, obj):
         user = self.get_user()
         if user.is_authenticated:
             return user.recipes_in_shopping_cart.filter(
                 recipe=obj).exists()
-        return False
+        return Response(status.HTTP_401_UNAUTHORIZED)
 
     def update_or_create_ingredient_amount(self, validated_data, recipe):
         if not validated_data:
             raise serializers.ValidationError({
                 'ingredients':
                     'Требуется хотя бы один ингредиент для рецепта'})
-        recipe_ingredients = [
-            RecipeIngredient(
-                ingredient_id=ingredient['id'], amount=ingredient['amount'],
-                recipe=recipe) for ingredient in validated_data]
-        RecipeIngredient.objects.bulk_create(recipe_ingredients)
+        existing_ingredients = recipe.ingredients.values_list('ingredient_id', flat=True)
+        for ingredient in validated_data:
+            ingredient_id = ingredient['id']
+            if ingredient_id in existing_ingredients:
+                raise serializers.ValidationError({
+                    'ingredients': 'Ингредиент уже выбран для данного рецепта'})
+            RecipeIngredient.objects.create(
+                ingredient_id=ingredient_id, amount=ingredient['amount'], recipe=recipe)
 
     def create(self, validated_data):
         ingredients_data = self.initial_data.pop('ingredients', '')
