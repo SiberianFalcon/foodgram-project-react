@@ -3,7 +3,7 @@ from djoser.views import UserViewSet
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.permissions import (
-    IsAuthenticated, IsAuthenticatedOrReadOnly)
+    IsAuthenticated)
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
@@ -77,6 +77,7 @@ class IngredientViewSet(ReadOnlyModelViewSet):
 class RecipeViewSet(ModelViewSet):
     queryset = Recipe.objects.all()
     pagination_class = PageLimitPagination
+    permission_class = IsOwnerOrReadOnly
     serializer_class = RecipeSerializer
     filterset_class = RecipeFilter
 
