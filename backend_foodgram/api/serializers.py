@@ -72,12 +72,10 @@ class ShortSubscriptionSerializer(serializers.ModelSerializer):
         follower = data.get('follower')
         following = data.get('following')
         if follower.subscriptions.filter(following=following).exists():
-            raise ValidationError({'error': 'Subscription is already exists.'})
-        if not follower.subscriptions.filter(following=following).exists():
-            raise ValidationError({'error': 'You haven\'t subscription'})
+            raise ValidationError('Подписка уже существует')
         if follower == following:
             raise ValidationError(
-                {'error': 'You can\'t subscribe to yourself.'})
+                'Вы не можете подписаться на самого себя')
         return data
 
     def to_representation(self, instance):
@@ -160,16 +158,16 @@ class RecipeSerializer(serializers.ModelSerializer):
         return Response(status.HTTP_401_UNAUTHORIZED)
 
     def update_or_create_ingredient_amount(self, validated_data, recipe):
+        if not validated_data:
+            raise serializers.ValidationError(
+                'Требуется хотя бы один ингредиент для рецепта')
+
         goods = []
         for i in validated_data:
             goods.append(i.get('id'))
         if len(goods) != len(set(goods)):
             raise serializers.ValidationError(
                 'Ингредиенты не могут повторяться')
-
-        if not validated_data:
-            raise serializers.ValidationError(
-                'Требуется хотя бы один ингредиент для рецепта')
 
         recipe_ingredients = [
             RecipeIngredient(
