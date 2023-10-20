@@ -159,15 +159,17 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def update_or_create_ingredient_amount(self, validated_data, recipe):
         if not validated_data:
-            raise serializers.ValidationError(
-                'Требуется хотя бы один ингредиент для рецепта')
+            return Response(
+                'Требуется хотя бы один ингредиент для рецепта',
+                status=status.HTTP_400_BAD_REQUEST)
 
         goods = []
         for i in validated_data:
             goods.append(i.get('id'))
         if len(goods) != len(set(goods)):
-            raise serializers.ValidationError(
-                'Ингредиенты не могут повторяться')
+            return Response(
+                'Ингредиенты не могут повторяться',
+                status=status.HTTP_400_BAD_REQUEST)
 
         recipe_ingredients = [
             RecipeIngredient(
