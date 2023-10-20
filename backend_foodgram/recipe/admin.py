@@ -40,11 +40,10 @@ class TagValidator(admin.ModelAdmin):
             raise ValidationError('Данный цвет уже существует')
 
 
-admin.site.register(Tag)
 admin.site.register(Favorite)
 admin.site.register(Subscription)
 admin.site.register(ShoppingCart)
-admin.site.register(TagValidator)
+admin.site.register(Tag, TagValidator)
 admin.site.register(RecipeIngredient)
 admin.site.register(Recipe, RecipeAdmin)
 admin.site.register(Ingredient, IngredientExport)
