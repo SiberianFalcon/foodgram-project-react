@@ -50,12 +50,6 @@ class CustomUserViewSet(UserViewSet):
 
     @subscribe.mapping.delete
     def unsubscribe(self, request, id):
-        # user = request.user
-        # subscription = get_object_or_404(Subscription,
-        #                                  following=id,
-        #                                  follower=user)
-        # subscription.delete()
-        # return Response(status=status.HTTP_204_NO_CONTENT)
         user = request.user
         subscription = Subscription.objects.filter(
             following=id, follower=user)
@@ -64,16 +58,6 @@ class CustomUserViewSet(UserViewSet):
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
-        # else:
-        #     return Response(status=status.HTTP_400_BAD_REQUEST)
-        # return Response(status=status.HTTP_204_NO_CONTENT)
-        # subscribe_queryset = request.user.subscribers.filter(
-        #     follower=id
-        # )
-        # if subscribe_queryset.exist():
-        #     subscribe_queryset.delete()
-        #     return Response(status=status.HTTP_204_NO_CONTENT)
-        # return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 class TagViewSet(ReadOnlyModelViewSet):
