@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers, status
@@ -97,7 +98,7 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 
 class IngredientInRecipeSerializer(serializers.ModelSerializer):
-    id = serializers.ReadOnlyField(source='ingredient.id')
+    id = serializers.IntegerField(source='ingredient.id')
     name = serializers.ReadOnlyField(source='ingredient.name')
     measurement_unit = serializers.ReadOnlyField(
         source='ingredient.measurement_unit')
@@ -113,17 +114,17 @@ class RecipeSerializer(serializers.ModelSerializer):
     tags = serializers.SerializerMethodField()
     author = serializers.SerializerMethodField()
     image = Base64ImageField()
-    ingredients = IngredientInRecipeSerializer(many=True,)
+    ingredients = IngredientInRecipeSerializer(many=True)
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
-    cooking_time = serializers.IntegerField(
-        min_value=MIN_VALUE, max_value=MAX_VALUE)
+    cooking_time = serializers.IntegerField(min_value=MIN_VALUE,
+                                            max_value=MAX_VALUE)
 
     class Meta:
         model = Recipe
-        fields = (
-            'id', 'tags', 'author', 'ingredients', 'is_favorited',
-            'is_in_shopping_cart', 'name', 'image', 'text', 'cooking_time')
+        fields = ('id', 'tags', 'author', 'ingredients',
+                  'is_favorited', 'is_in_shopping_cart',
+                  'name', 'image', 'text', 'cooking_time')
 
     def get_user(self):
         request = self.context.get('request')
@@ -148,28 +149,26 @@ class RecipeSerializer(serializers.ModelSerializer):
         user = request.user
         if user.is_authenticated:
             return user.favorite_recipes.filter(recipe=obj).exists()
-        return Response(status.HTTP_401_UNAUTHORIZED)
+        return False
 
     def get_is_in_shopping_cart(self, obj):
         user = self.get_user()
         if user.is_authenticated:
             return user.recipes_in_shopping_cart.filter(
                 recipe=obj).exists()
-        return Response(status.HTTP_401_UNAUTHORIZED)
+        return False
+
+    def validate(self, data):
+        if 'ingredients' not in data:
+            raise ValidationError('Ингредиенты - Обязательное поле!')
+        elif 'cooking_time' not in data:
+            raise ValidationError('Кук тайм - Обязательное поле!')
+        return data
 
     def update_or_create_ingredient_amount(self, validated_data, recipe):
         if not validated_data:
-            return Response(
-                'Требуется хотя бы один ингредиент для рецепта',
-                status=status.HTTP_400_BAD_REQUEST)
-
-        goods = []
-        for i in validated_data:
-            goods.append(i.get('id'))
-        if len(goods) != len(set(goods)):
-            return Response(
-                'Ингредиенты не могут повторяться',
-                status=status.HTTP_400_BAD_REQUEST)
+            raise serializers.ValidationError(
+                'Такого ингредиента не существует')
 
         recipe_ingredients = [
             RecipeIngredient(
@@ -201,7 +200,6 @@ class RecipeSerializer(serializers.ModelSerializer):
         self.update_or_create_ingredient_amount(
             self.initial_data.get('ingredients'), recipe)
         recipe.save()
-        return recipe
 
 
 class RecipeInFavoriteSerializer(serializers.ModelSerializer):

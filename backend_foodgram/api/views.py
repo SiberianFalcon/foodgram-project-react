@@ -3,7 +3,7 @@ from djoser.views import UserViewSet
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.permissions import (
-    IsAuthenticated,)
+    IsAuthenticated, IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
@@ -12,6 +12,7 @@ from core.tools import (
     get_user_and_recipe_or_404)
 from recipe.models import (
     Ingredient, Recipe, RecipeIngredient, ShoppingCart, Subscription, Tag)
+from .permissions import IsOwnerOrReadOnly
 from .filters import IngredientSearchFilter, RecipeFilter
 from .pagination import PageLimitPagination
 from .serializers import (
@@ -52,7 +53,7 @@ class CustomUserViewSet(UserViewSet):
         user = request.user
         subscription = Subscription.objects.filter(
             following=id, follower=user)
-        if subscription is not None:
+        if subscription.exists():
             subscription.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
