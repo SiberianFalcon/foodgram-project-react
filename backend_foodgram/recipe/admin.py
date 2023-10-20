@@ -1,6 +1,8 @@
 from django.contrib import admin
 from import_export import resources
+from django.core.exceptions import ValidationError
 from import_export.admin import ImportExportModelAdmin
+
 
 from .models import (
     Favorite, Ingredient, Recipe,
@@ -28,10 +30,21 @@ class IngredientExport(ImportExportModelAdmin):
     resource_classes = [BookResource]
 
 
+class TagValidator(admin.ModelAdmin):
+
+    class Meta:
+        model = Tag
+
+    def tag_validator(self):
+        if Tag.objects.exclude(id=self.id).filter(color=self.color).exists():
+            raise ValidationError('Данный цвет уже существует')
+
+
 admin.site.register(Tag)
 admin.site.register(Favorite)
-admin.site.register(ShoppingCart)
 admin.site.register(Subscription)
+admin.site.register(ShoppingCart)
+admin.site.register(TagValidator)
 admin.site.register(RecipeIngredient)
 admin.site.register(Recipe, RecipeAdmin)
 admin.site.register(Ingredient, IngredientExport)
