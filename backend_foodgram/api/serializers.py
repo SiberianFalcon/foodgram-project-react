@@ -201,8 +201,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         recipe.name = validated_data.get('name', recipe.name)
         recipe.text = validated_data.get('text', recipe.text)
         recipe.cooking_time = validated_data.get(
-            'cooking_time', recipe.cooking_time
-        )
+            'cooking_time', recipe.cooking_time)
         recipe.tags.clear()
         tags_data = self.initial_data.get('tags')
         recipe.tags.set(tags_data)
