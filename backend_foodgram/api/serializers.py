@@ -161,20 +161,24 @@ class RecipeSerializer(serializers.ModelSerializer):
             raise ValidationError('Ингредиенты - Обязательное поле!')
         elif 'cooking_time' not in data:
             raise ValidationError('Время готовки - Обязательное поле!')
+        elif 'image' is None:
+            raise ValidationError('Картинка - Обязательное поле!')
+        elif 'name' not in data:
+            raise ValidationError('Название - Обязательное поле!')
+        elif 'text' not in data:
+            raise ValidationError('Описание - Обязательное поле!')
         return data
 
     def update_or_create_ingredient_amount(self, validated_data, recipe):
-        goods = []
         if not validated_data:
             raise serializers.ValidationError(
                 'Такого ингредиента не существует')
-
+        goods = []
         for i in validated_data:
-            goods.append(i['ingredients.id'])
-
-        # if goods != set(goods):
-        #     raise serializers.ValidationError(
-        #         'Нельзя взять два одинаковых ингредиента')
+            goods.append(i.get('id'))
+        if len(goods) != len(set(goods)):
+            raise serializers.ValidationError(
+                'Ингредиенты не могут повторяться')
 
         recipe_ingredients = [
             RecipeIngredient(
