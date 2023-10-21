@@ -2,8 +2,7 @@ from django.contrib.auth import get_user_model
 from djoser.views import UserViewSet
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.permissions import (
-    IsAuthenticated)
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
@@ -77,12 +76,21 @@ class IngredientViewSet(ReadOnlyModelViewSet):
 class RecipeViewSet(ModelViewSet):
     queryset = Recipe.objects.all()
     pagination_class = PageLimitPagination
-    permission_class = (IsOwnerOrReadOnly,)
+    # permission_class = (IsOwnerOrReadOnly,)
     serializer_class = RecipeSerializer
     filterset_class = RecipeFilter
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+
+    def perform_update(self, serializer):
+        return super().perform_update(serializer)
+
+    def perform_destroy(self, serializer):
+        if serializer.author != self.request.user:
+            raise Response("Вы не являетесь автором этой записи.",
+                           status=status.HTTP_403_FORBIDDEN)
+        serializer.delete()
 
     @action(methods=['post'], detail=True,
             permission_classes=[IsAuthenticated])
@@ -97,6 +105,14 @@ class RecipeViewSet(ModelViewSet):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+    def delete_from(self, model, user, pk):
+        obj = model.objects.filter(user=user, recipe__id=pk)
+        if obj.exists():
+            obj.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            'Рецепт уже удален!', status=status.HTTP_400_BAD_REQUEST)
+
     @favorite.mapping.delete
     def remove_from_favorite(self, request, pk):
         user, recipe = get_user_and_recipe_or_404(request, pk)
@@ -105,7 +121,7 @@ class RecipeViewSet(ModelViewSet):
             favorite_recipe.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(
-            {'error': 'Этот рецепт не в списке избранного'},
+            'Этот рецепт не в списке избранного',
             status=status.HTTP_400_BAD_REQUEST
         )
 

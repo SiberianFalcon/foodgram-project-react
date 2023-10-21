@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django_filters.rest_framework import FilterSet, filters
-from django.http import HttpResponse
+from rest_framework import status
+from rest_framework.response import Response
 from rest_framework.filters import SearchFilter
 
 from recipe.models import Recipe
@@ -18,12 +19,14 @@ class RecipeFilter(FilterSet):
     def filter_is_favorited(self, queryset, name, value):
         if value and not self.request.user.is_anonymous:
             return queryset.filter(favorited_by__user=self.request.user)
-        return HttpResponse('Необходимо авторизоваться')
+        return Response(
+            'Необходимо авторизоваться', status=status.HTTP_401_UNAUTHORIZED)
 
     def filter_is_in_shopping_cart(self, queryset, name, value):
         if value and not self.request.user.is_anonymous:
             return queryset.filter(shopping_by__user=self.request.user)
-        return HttpResponse('Необходимо авторизоваться')
+        return Response(
+            'Необходимо авторизоваться', status=status.HTTP_401_UNAUTHORIZED)
 
     class Meta:
         model = Recipe

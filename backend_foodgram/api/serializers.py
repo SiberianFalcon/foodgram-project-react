@@ -124,6 +124,11 @@ class RecipeSerializer(serializers.ModelSerializer):
                   'is_favorited', 'is_in_shopping_cart',
                   'name', 'image', 'text', 'cooking_time')
 
+        read_only_fields = (
+            "is_favorite",
+            "is_shopping_cart",
+        )
+
     def get_user(self):
         request = self.context.get('request')
         return request.user
@@ -157,15 +162,19 @@ class RecipeSerializer(serializers.ModelSerializer):
         return False
 
     def validate(self, data):
-        if 'ingredients' not in data:
+        tags_ids = self.initial_data.get("tags")
+        ingredients = self.initial_data.get("ingredients")
+        if not tags_ids or not ingredients:
+            raise ValidationError("Недостаточно данных.")
+        if data['ingredients'] is None:
             raise ValidationError('Ингредиенты - Обязательное поле!')
-        elif 'cooking_time' not in data:
+        elif data['cooking_time'] is None:
             raise ValidationError('Время готовки - Обязательное поле!')
-        elif 'image' is None:
+        elif data['image'] is None:
             raise ValidationError('Картинка - Обязательное поле!')
-        elif 'name' not in data:
+        elif data['name'] is None:
             raise ValidationError('Название - Обязательное поле!')
-        elif 'text' not in data:
+        elif data['text'] is None:
             raise ValidationError('Описание - Обязательное поле!')
         return data
 
@@ -173,6 +182,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         if not validated_data:
             raise serializers.ValidationError(
                 'Такого ингредиента не существует')
+
         goods = []
         for i in validated_data:
             goods.append(i.get('id'))
