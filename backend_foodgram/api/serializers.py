@@ -160,13 +160,21 @@ class RecipeSerializer(serializers.ModelSerializer):
         if 'ingredients' not in data:
             raise ValidationError('Ингредиенты - Обязательное поле!')
         elif 'cooking_time' not in data:
-            raise ValidationError('Кук тайм - Обязательное поле!')
+            raise ValidationError('Время готовки - Обязательное поле!')
         return data
 
     def update_or_create_ingredient_amount(self, validated_data, recipe):
+        goods = []
         if not validated_data:
             raise serializers.ValidationError(
                 'Такого ингредиента не существует')
+
+        for i in validated_data:
+            goods.append(i['ingredients.id'])
+
+        # if goods != set(goods):
+        #     raise serializers.ValidationError(
+        #         'Нельзя взять два одинаковых ингредиента')
 
         recipe_ingredients = [
             RecipeIngredient(
@@ -198,6 +206,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         self.update_or_create_ingredient_amount(
             self.initial_data.get('ingredients'), recipe)
         recipe.save()
+        return recipe
 
 
 class RecipeInFavoriteSerializer(serializers.ModelSerializer):
