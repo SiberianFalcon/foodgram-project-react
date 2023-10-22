@@ -5,6 +5,8 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
+from django.shortcuts import get_object_or_404
+
 
 from core.tools import (
     form_ingredients_list, generate_ingredients_list_via_pdf,
@@ -76,7 +78,7 @@ class IngredientViewSet(ReadOnlyModelViewSet):
 class RecipeViewSet(ModelViewSet):
     queryset = Recipe.objects.all()
     pagination_class = PageLimitPagination
-    # permission_class = (IsOwnerOrReadOnly,)
+    permission_class = (IsOwnerOrReadOnly,)
     serializer_class = RecipeSerializer
     filterset_class = RecipeFilter
 
@@ -92,38 +94,66 @@ class RecipeViewSet(ModelViewSet):
                            status=status.HTTP_403_FORBIDDEN)
         serializer.delete()
 
-    @action(methods=['post'], detail=True,
-            permission_classes=[IsAuthenticated])
+    @action(
+        methods=['post', 'delete'],
+        detail=True,
+        permission_classes=(IsAuthenticated,),
+    )
     def favorite(self, request, pk):
-        user = request.user
-        recipe = self.get_object()
-        data = {'user': user.id,
-                'recipe': recipe.id}
-        serializer = ShortRecipeInFavoriteSerializer(
-            data=data, context={'request': self.request})
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-    def delete_from(self, model, user, pk):
-        obj = model.objects.filter(user=user, recipe__id=pk)
-        if obj.exists():
-            obj.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+        recipe_obj = get_object_or_404(Recipe, id=pk)
+        favourite_queryset = request.user.favorited.filter(recipe=recipe_obj)
+        if request.method == 'POST':
+            if favourite_queryset.exists():
+                return Response(
+                    'Рецепт добавлен в избранное!',
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            request.user.favorited.create(recipe=recipe_obj)
+            serializer = RecipeInFavoriteSerializer(recipe_obj)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        if favourite_queryset .exists():
+            favourite_queryset.delete()
+            return Response(
+                'Рецепт удалён из избранного',
+                status=status.HTTP_204_NO_CONTENT
+            )
         return Response(
-            'Рецепт уже удален!', status=status.HTTP_400_BAD_REQUEST)
-
-    @favorite.mapping.delete
-    def remove_from_favorite(self, request, pk):
-        user, recipe = get_user_and_recipe_or_404(request, pk)
-        favorite_recipe = user.favorite_recipes.filter(recipe=recipe)
-        if favorite_recipe.exists():
-            favorite_recipe.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response(
-            'Этот рецепт не в списке избранного',
+            'Рецепта нету в избранном',
             status=status.HTTP_400_BAD_REQUEST
         )
+
+    # @action(methods=['post'], detail=True,
+    #         permission_classes=[IsAuthenticated])
+    # def favorite(self, request, pk):
+    #     user = request.user
+    #     recipe = self.get_object()
+    #     data = {'user': user.id,
+    #             'recipe': recipe.id}
+    #     serializer = ShortRecipeInFavoriteSerializer(
+    #         data=data, context={'request': self.request})
+    #     serializer.is_valid(raise_exception=True)
+    #     serializer.save()
+    #     return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    # def delete_from(self, model, user, pk):
+    #     obj = model.objects.filter(user=user, recipe__id=pk)
+    #     if obj.exists():
+    #         obj.delete()
+    #         return Response(status=status.HTTP_204_NO_CONTENT)
+    #     return Response(
+    #         'Рецепт уже удален!', status=status.HTTP_400_BAD_REQUEST)
+
+    # @favorite.mapping.delete
+    # def remove_from_favorite(self, request, pk):
+    #     user, recipe = get_user_and_recipe_or_404(request, pk)
+    #     favorite_recipe = user.favorite_recipes.filter(recipe=recipe)
+    #     if favorite_recipe.exists():
+    #         favorite_recipe.delete()
+    #         return Response(status=status.HTTP_204_NO_CONTENT)
+    #     return Response(
+    #         'Этот рецепт не в списке избранного',
+    #         status=status.HTTP_400_BAD_REQUEST
+    #     )
 
     @action(methods=['post'], detail=True,
             permission_classes=[IsAuthenticated])
