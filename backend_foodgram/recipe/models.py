@@ -20,7 +20,7 @@ class Tag(models.Model):
                 regex='^#([A-F0-9]{6}|[A-F0-9]{3})$',
                 message=(
                     'Неверное значение! Введите значениев верхнем регистре!'
-                    ))],)
+                ))],)
     slug = models.SlugField(
         max_length=MAX_LENGHT, unique=True)
 
