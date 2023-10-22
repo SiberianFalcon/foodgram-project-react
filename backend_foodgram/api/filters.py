@@ -14,7 +14,7 @@ class RecipeFilter(FilterSet):
         to_field_name='slug',
         queryset=Tag.objects.all(),
     )
-    # author = filters.ModelChoiceFilter(queryset=User.objects.all())
+    author = filters.ModelChoiceFilter(queryset=User.objects.all())
     is_favorited = filters.BooleanFilter(method='filter_is_favorited')
     is_in_shopping_cart = filters.BooleanFilter(
         method='filter_is_in_shopping_cart')
@@ -28,7 +28,7 @@ class RecipeFilter(FilterSet):
             raise AuthenticationFailed(
                 detail='Нужно авторизоваться!')
         if value:
-            return queryset.filter(favorited__user=self.request.user)
+            return queryset.filter(favorited_by__user=self.request.user)
         return queryset
 
     def filter_is_in_shopping_cart(self, queryset, name, value):
@@ -37,7 +37,7 @@ class RecipeFilter(FilterSet):
                 detail='Нужно авторизоваться!'
             )
         if value:
-            return queryset.filter(shopping__user=self.request.user)
+            return queryset.filter(shopping_by__user=self.request.user)
         return queryset
 
 
