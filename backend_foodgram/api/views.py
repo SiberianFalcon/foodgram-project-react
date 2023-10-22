@@ -55,9 +55,9 @@ class CustomUserViewSet(UserViewSet):
             following=id, follower=user)
         if subscription.exists():
             subscription.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        else:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                'Подписка удалена', status=status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 class TagViewSet(ReadOnlyModelViewSet):
