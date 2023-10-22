@@ -2,7 +2,7 @@ from colorfield.fields import ColorField
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.core.validators import (
-    MaxValueValidator, MinValueValidator)
+    MaxValueValidator, MinValueValidator, RegexValidator)
 from django.db import models
 
 from .constants import MAX_LENGHT, MAX_VALUE, MIN_VALUE
@@ -13,7 +13,12 @@ User = get_user_model()
 
 class Tag(models.Model):
     name = models.CharField(max_length=MAX_LENGHT, unique=True)
-    color = ColorField()
+    color = ColorField(
+        'Цвет тега', max_length=7, default='#FF0000', unique=True,
+        validators=[
+            RegexValidator(regex='^#([A-F0-9]{6}|[A-F0-9]{3})$', message=(
+                    'Неверное значение! Введите значение в верхнем регистре!'))
+                    ],)
     slug = models.SlugField(
         max_length=MAX_LENGHT, unique=True)
 
@@ -49,11 +54,6 @@ class Ingredient(models.Model):
 class Recipe(models.Model):
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='recipes')
-    ingredients = models.ManyToManyField(
-        Ingredient,
-        through='RecipeIngredient',
-        verbose_name='Ингредиенты'
-    )
     tags = models.ManyToManyField(Tag, related_name='recipes')
     image = models.ImageField()
     name = models.CharField(max_length=MAX_LENGHT)
@@ -76,9 +76,9 @@ class Recipe(models.Model):
 
 class RecipeIngredient(models.Model):
     recipe = models.ForeignKey(
-        Recipe, on_delete=models.CASCADE)
+        Recipe, on_delete=models.CASCADE, related_name='ingredients')
     ingredient = models.ForeignKey(
-        Ingredient, on_delete=models.CASCADE)
+        Ingredient, related_name='recipes', on_delete=models.CASCADE)
     amount = models.PositiveSmallIntegerField(validators=[
         MaxValueValidator(
             limit_value=MAX_VALUE, message='Значение превышено'),
@@ -86,7 +86,6 @@ class RecipeIngredient(models.Model):
             limit_value=MIN_VALUE, message='Значение слишком мало')])
 
     class Meta:
-        default_related_name = 'ingredient_recipe'
         ordering = ['-recipe']
 
 
@@ -105,20 +104,14 @@ class Subscription(models.Model):
 
 class Favorite(models.Model):
     user = models.ForeignKey(
-        User, on_delete=models.CASCADE)
+        User, related_name='favorite_recipes', on_delete=models.CASCADE)
     recipe = models.ForeignKey(
-        Recipe, on_delete=models.CASCADE)
+        Recipe, related_name='favorited_by', on_delete=models.CASCADE)
 
     class Meta:
-        verbose_name = 'Избранное'
-        verbose_name_plural = 'Избранные'
-        default_related_name = 'favorited'
-        constraints = [
-            models.UniqueConstraint(
-                fields=['user', 'recipe'],
-                name='unique_favorited'
-            )
-        ]
+        constraints = [models.UniqueConstraint(
+            fields=['user', 'recipe'], name='unique_favorite')]
+        ordering = ['-user']
 
 
 class ShoppingCart(models.Model):
