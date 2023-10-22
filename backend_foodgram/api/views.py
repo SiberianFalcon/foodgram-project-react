@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
 from rest_framework import status
 from rest_framework.decorators import action
@@ -69,6 +70,7 @@ class IngredientViewSet(ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     pagination_class = None
+    filter_backends = (DjangoFilterBackend,)
     filter_backends = (IngredientSearchFilter,)
     search_fields = ('^name',)
 
@@ -76,8 +78,9 @@ class IngredientViewSet(ReadOnlyModelViewSet):
 class RecipeViewSet(ModelViewSet):
     queryset = Recipe.objects.all()
     pagination_class = PageLimitPagination
-    # permission_class = (IsOwnerOrReadOnly,)
+    permission_class = (IsOwnerOrReadOnly,)
     serializer_class = RecipeSerializer
+    filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
 
     def perform_create(self, serializer):
