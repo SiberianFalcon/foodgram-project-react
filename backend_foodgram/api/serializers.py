@@ -108,8 +108,8 @@ class IngredientInRecipeSerializer(serializers.ModelSerializer):
 
 
 class RecipeSerializer(serializers.ModelSerializer):
-    tags = serializers.SerializerMethodField()
-    author = serializers.SerializerMethodField()
+    tags = TagSerializer(many=True, read_only=True)
+    author = CustomUserSerializer(read_only=True)
     image = Base64ImageField()
     ingredients = IngredientInRecipeSerializer(many=True)
     is_favorited = serializers.SerializerMethodField()
@@ -161,10 +161,16 @@ class RecipeSerializer(serializers.ModelSerializer):
         return False
 
     def validate(self, data):
-        tags_ids = self.initial_data.get("tags")
+        tags_id = self.initial_data.get("tags")
         ingredients = self.initial_data.get("ingredients")
-        if not tags_ids or not ingredients:
-            raise ValidationError("Недостаточно данных.")
+        ingredients_id = Ingredient.objects.values_list('id', flat=True)
+
+        for i in ingredients:
+            if i.get('id') not in ingredients_id:
+                raise ValidationError(
+                    'Такого ингредиента не существует!'
+                )
+
         if data['ingredients'] is None:
             raise ValidationError('Ингредиенты - Обязательное поле!')
         elif data['cooking_time'] is None:
@@ -175,12 +181,14 @@ class RecipeSerializer(serializers.ModelSerializer):
             raise ValidationError('Название - Обязательное поле!')
         elif data['text'] is None:
             raise ValidationError('Описание - Обязательное поле!')
+        elif not tags_id or not ingredients:
+            raise ValidationError("Недостаточно данных.")
         return data
 
     def update_or_create_ingredient_amount(self, validated_data, recipe):
         if not validated_data:
             raise serializers.ValidationError(
-                'Такого ингредиента не существует')
+                'Необходим ингредиент')
 
         goods = []
         for i in validated_data:

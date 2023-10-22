@@ -2,7 +2,7 @@ from colorfield.fields import ColorField
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.core.validators import (
-    MaxValueValidator, MinValueValidator)
+    MaxValueValidator, MinValueValidator, RegexValidator)
 from django.db import models
 
 from .constants import MAX_LENGHT, MAX_VALUE, MIN_VALUE
@@ -13,7 +13,12 @@ User = get_user_model()
 
 class Tag(models.Model):
     name = models.CharField(max_length=MAX_LENGHT, unique=True)
-    color = ColorField()
+    color = ColorField(
+        'Цвет тега', max_length=7, default='#FF0000', unique=True,
+        validators=[
+            RegexValidator(regex='^#([A-F0-9]{6}|[A-F0-9]{3})$', message=(
+                    'Неверное значение! Введите значение в верхнем регистре!'))
+                    ],)
     slug = models.SlugField(
         max_length=MAX_LENGHT, unique=True)
 

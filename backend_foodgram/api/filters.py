@@ -19,11 +19,14 @@ class RecipeFilter(FilterSet):
     is_in_shopping_cart = filters.BooleanFilter(
         method='filter_is_in_shopping_cart')
 
+    class Meta:
+        model = Recipe
+        fields = ('tags', 'author', 'is_favorited', 'is_in_shopping_cart')
+
     def filter_is_favorited(self, queryset, name, value):
         if self.request.user.is_anonymous:
             raise AuthenticationFailed(
-                detail='Нужно авторизоваться!'
-            )
+                detail='Нужно авторизоваться!')
         if value:
             return queryset.filter(favorited_by__user=self.request.user)
         return queryset
@@ -36,10 +39,6 @@ class RecipeFilter(FilterSet):
         if value:
             return queryset.filter(shopping_by__user=self.request.user)
         return queryset
-
-    class Meta:
-        model = Recipe
-        fields = ('tags', 'author')
 
 
 class IngredientSearchFilter(SearchFilter):

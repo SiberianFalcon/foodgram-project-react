@@ -77,7 +77,6 @@ class IngredientViewSet(ReadOnlyModelViewSet):
 
 class RecipeViewSet(ModelViewSet):
     queryset = Recipe.objects.all()
-    pagination_class = PageLimitPagination
     permission_class = (IsOwnerOrReadOnly,)
     serializer_class = RecipeSerializer
     filter_backends = (DjangoFilterBackend,)
