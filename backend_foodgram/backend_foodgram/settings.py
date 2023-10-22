@@ -14,9 +14,6 @@ DEBUG = False
 
 ALLOWED_HOSTS = [os.getenv('HOST_1'), os.getenv('HOST_2'), os.getenv('HOST_3'), os.getenv('HOST_4')]
 
-
-# Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -70,21 +67,14 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'backend_foodgram.wsgi.application'
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': os.getenv('POSTGRES_DB', 'food_db'),
-#         'USER': os.getenv('POSTGRES_USER', 'food_user'),
-#         'PASSWORD': os.getenv('POSTGRES_PASSWORD', ''),
-#         'HOST': os.getenv('DB_HOST', ''),
-#         'PORT': os.getenv('DB_PORT', 5432)
-#     }
-# }
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('POSTGRES_DB', 'food_db'),
+        'USER': os.getenv('POSTGRES_USER', 'food_user'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD', ''),
+        'HOST': os.getenv('DB_HOST', ''),
+        'PORT': os.getenv('DB_PORT', 5432)
     }
 }
 
