@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
@@ -128,6 +129,10 @@ class RecipeSerializer(serializers.ModelSerializer):
             "is_shopping_cart",
         )
 
+    def get_ingredients(self, obj):
+        return obj.ingredients.values().annotate(
+            amount=F('ingredient_recipe__amount'))
+
     def get_user(self):
         request = self.context.get('request')
         return request.user
@@ -167,9 +172,7 @@ class RecipeSerializer(serializers.ModelSerializer):
 
         for i in ingredients:
             if i.get('id') not in ingredients_id:
-                raise ValidationError(
-                    'Такого ингредиента не существует!'
-                )
+                raise ValidationError('Такого ингредиента не существует!')
 
         if data['ingredients'] is None:
             raise ValidationError('Ингредиенты - Обязательное поле!')
