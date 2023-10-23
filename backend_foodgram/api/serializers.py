@@ -1,5 +1,4 @@
 from django.contrib.auth import get_user_model
-from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
@@ -128,10 +127,6 @@ class RecipeSerializer(serializers.ModelSerializer):
             "is_favorite",
             "is_shopping_cart",
         )
-
-    def get_ingredients(self, obj):
-        return obj.ingredients.values().annotate(
-            amount=F('ingredient_recipe__amount'))
 
     def get_user(self):
         request = self.context.get('request')
