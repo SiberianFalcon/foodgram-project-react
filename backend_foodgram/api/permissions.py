@@ -1,6 +1,4 @@
 from rest_framework.permissions import SAFE_METHODS, BasePermission
-from rest_framework import status
-from rest_framework.response import Response
 
 
 class IsAdminOrReadOnly(BasePermission):

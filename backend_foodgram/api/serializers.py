@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
@@ -128,6 +129,10 @@ class RecipeSerializer(serializers.ModelSerializer):
             "is_shopping_cart",
         )
 
+    def get_ingredients(self, obj):
+        return obj.ingredients.values().annotate(
+            amount=F('ingredient_recipe__amount'))
+
     def get_user(self):
         request = self.context.get('request')
         return request.user
@@ -161,15 +166,13 @@ class RecipeSerializer(serializers.ModelSerializer):
         return False
 
     def validate(self, data):
-        tags_id = self.initial_data.get("tags")
+        tags_id = self.initial_data.get('tags')
         ingredients = self.initial_data.get("ingredients")
         ingredients_id = Ingredient.objects.values_list('id', flat=True)
 
         for i in ingredients:
             if i.get('id') not in ingredients_id:
-                raise ValidationError(
-                    'Такого ингредиента не существует!'
-                )
+                raise ValidationError('Такого ингредиента не существует!')
 
         if data['ingredients'] is None:
             raise ValidationError('Ингредиенты - Обязательное поле!')
@@ -182,7 +185,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         elif data['text'] is None:
             raise ValidationError('Описание - Обязательное поле!')
         elif not tags_id or not ingredients:
-            raise ValidationError("Недостаточно данных.")
+            raise ValidationError('Нет такого тега или ингредиента')
         return data
 
     def update_or_create_ingredient_amount(self, validated_data, recipe):
