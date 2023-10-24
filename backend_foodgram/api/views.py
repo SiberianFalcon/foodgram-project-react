@@ -31,13 +31,16 @@ class CustomUserViewSet(UserViewSet):
     permission_classes = (IsAuthenticated,)
     pagination_class = PageLimitPagination
 
-    @action(methods=['get'], detail=False,
-            permission_classes=(IsAuthenticated,))
+    @action(
+        detail=False,
+        permission_classes=[IsAuthenticated]
+    )
     def subscriptions(self, request):
         paginator = self.paginate_queryset(
-            User.objects.filter(subscribers__following=self.request.user))
-        serializer = SubscriptionSerializer(
-            paginator, many=True, context={'request': self.request})
+            User.objects.filter(subscribers__follower=request.user))
+        serializer = SubscriptionSerializer(paginator,
+                                            many=True,
+                                            context={'request': request})
         return self.get_paginated_response(serializer.data)
 
     @action(methods=['post'], detail=True,
@@ -55,13 +58,11 @@ class CustomUserViewSet(UserViewSet):
     @subscribe.mapping.delete
     def unsubscribe(self, request, id):
         user = request.user
-        subscription = Subscription.objects.filter(
-            following=id, follower=user)
-        if subscription.exists():
-            subscription.delete()
-            return Response(
-                'Подписка удалена', status=status.HTTP_204_NO_CONTENT)
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+        subscription = get_object_or_404(Subscription,
+                                         following=id,
+                                         follower=user)
+        subscription.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class TagViewSet(ReadOnlyModelViewSet):

@@ -25,8 +25,10 @@ class CustomUserSerializer(UserSerializer):
 
     class Meta:
         model = User
-        fields = ('email', 'id', 'username',
-                  'first_name', 'last_name', 'is_subscribed',)
+        fields = (
+            'email', 'id', 'username', 'first_name', 'last_name',
+            'is_subscribed'
+        )
 
     def get_is_subscribed(self, obj):
         user = self.context.get('request').user
@@ -35,7 +37,7 @@ class CustomUserSerializer(UserSerializer):
         return False
 
 
-class SubscriptionSerializer(serializers.ModelSerializer):
+class SubscriptionSerializer(CustomUserSerializer):
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
     is_subscribed = serializers.SerializerMethodField()
@@ -45,27 +47,19 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         fields = (
             'email', 'id', 'username', 'first_name', 'last_name',
             'is_subscribed', 'recipes', 'recipes_count')
-        read_only_fields = (
-            'email', 'id', 'username', 'first_name', 'last_name',
-            'is_subscribed', 'recipes', 'recipes_count')
 
     def get_recipes(self, obj):
         request = self.context.get('request')
+        count_limit = request.GET.get('recipes_limit')
         recipes = obj.recipes.all()
-        serializer = RecipeInFavoriteSerializer(recipes, many=True, context={'request': request})
+        if count_limit:
+            recipes = recipes[:int(count_limit)]
+        serializer = RecipeInFavoriteSerializer(recipes, many=True)
         return serializer.data
-
-    def get_is_subscribed(self, obj):
-        user = self.context.get('request').user
-        if user.is_authenticated:
-            return user.subscriptions.filter(following=obj).exists()
-        return False
 
     def get_recipes_count(self, obj):
         recipes = obj.recipes.all()
         return recipes.count()
-
-
 
 
 class ShortSubscriptionSerializer(serializers.ModelSerializer):
