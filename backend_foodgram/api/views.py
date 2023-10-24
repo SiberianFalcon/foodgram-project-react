@@ -97,6 +97,7 @@ class RecipeViewSet(ModelViewSet):
             raise Response("Вы не являетесь автором этой записи.",
                            status=status.HTTP_403_FORBIDDEN)
         serializer.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(methods=['post'], detail=True,
             permission_classes=[IsAuthenticated])
