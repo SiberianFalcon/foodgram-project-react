@@ -54,7 +54,8 @@ class SubscriptionSerializer(CustomUserSerializer):
         recipes = obj.recipes.all()
         if count_limit:
             recipes = recipes[:int(count_limit)]
-        serializer = RecipeInFavoriteSerializer(recipes, many=True)
+        serializer = RecipeInFavoriteSerializer(
+            recipes, many=True, read_only=True)
         return serializer.data
 
     def get_recipes_count(self, obj):
