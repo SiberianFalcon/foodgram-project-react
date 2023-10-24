@@ -38,9 +38,8 @@ class CustomUserViewSet(UserViewSet):
     def subscriptions(self, request):
         paginator = self.paginate_queryset(
             User.objects.filter(subscribers__follower=request.user))
-        serializer = SubscriptionSerializer(paginator,
-                                            many=True,
-                                            context={'request': request})
+        serializer = SubscriptionSerializer(
+            paginator, many=True, context={'request': request})
         return self.get_paginated_response(serializer.data)
 
     @action(methods=['post'], detail=True,
@@ -58,9 +57,8 @@ class CustomUserViewSet(UserViewSet):
     @subscribe.mapping.delete
     def unsubscribe(self, request, id):
         user = request.user
-        subscription = get_object_or_404(Subscription,
-                                         following=id,
-                                         follower=user)
+        subscription = get_object_or_404(
+            Subscription, following=id, follower=user)
         subscription.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -112,14 +110,6 @@ class RecipeViewSet(ModelViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-    def delete_from(self, model, user, pk):
-        obj = model.objects.filter(user=user, recipe__id=pk)
-        if obj.exists():
-            obj.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response(
-            'Рецепт уже удален!', status=status.HTTP_400_BAD_REQUEST)
 
     @favorite.mapping.delete
     def remove_from_favorite(self, request, pk):
