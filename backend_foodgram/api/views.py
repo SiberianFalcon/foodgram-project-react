@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
 from rest_framework import status
@@ -18,20 +19,23 @@ from .pagination import PageLimitPagination
 from .serializers import (
     IngredientSerializer, RecipeInFavoriteSerializer, RecipeSerializer,
     ShortRecipeInFavoriteSerializer, ShortSubscriptionSerializer,
-    SubscriptionSerializer, TagSerializer)
+    SubscriptionSerializer, TagSerializer, CustomUserSerializer)
 
 
 User = get_user_model()
 
 
 class CustomUserViewSet(UserViewSet):
+    queryset = User.objects.all()
+    serializer_class = CustomUserSerializer
+    permission_classes = (IsAuthenticated,)
     pagination_class = PageLimitPagination
 
     @action(methods=['get'], detail=False,
-            permission_classes=[IsAuthenticated])
+            permission_classes=(IsAuthenticated,))
     def subscriptions(self, request):
         paginator = self.paginate_queryset(
-            User.objects.filter(subscribers__follower=self.request.user))
+            User.objects.filter(subscribers__following=self.request.user))
         serializer = SubscriptionSerializer(
             paginator, many=True, context={'request': self.request})
         return self.get_paginated_response(serializer.data)
@@ -77,6 +81,7 @@ class IngredientViewSet(ReadOnlyModelViewSet):
 
 class RecipeViewSet(ModelViewSet):
     queryset = Recipe.objects.all()
+    pagination_class = PageLimitPagination
     permission_class = (IsOwnerOrReadOnly,)
     serializer_class = RecipeSerializer
     filter_backends = (DjangoFilterBackend,)
