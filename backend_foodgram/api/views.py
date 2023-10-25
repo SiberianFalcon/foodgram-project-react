@@ -33,8 +33,7 @@ class CustomUserViewSet(UserViewSet):
 
     @action(
         detail=False,
-        permission_classes=[IsAuthenticated]
-    )
+        permission_classes=[IsAuthenticated])
     def subscriptions(self, request):
         paginator = self.paginate_queryset(
             User.objects.filter(subscribers__follower=request.user))
@@ -48,8 +47,7 @@ class CustomUserViewSet(UserViewSet):
         data = {'follower': request.user.id,
                 'following': self.get_object().id}
         serializer = ShortSubscriptionSerializer(
-            data=data,
-            context={'request': request})
+            data=data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status.HTTP_201_CREATED)
@@ -121,8 +119,7 @@ class RecipeViewSet(ModelViewSet):
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(
             'Этот рецепт не в списке избранного',
-            status=status.HTTP_400_BAD_REQUEST
-        )
+            status=status.HTTP_400_BAD_REQUEST)
 
     @action(methods=['post'], detail=True,
             permission_classes=[IsAuthenticated])
@@ -145,8 +142,8 @@ class RecipeViewSet(ModelViewSet):
         recipe_in_shopping_cart = user.recipes_in_shopping_cart.filter(
             recipe=recipe)
         if not recipe_in_shopping_cart.exists():
-            return Response({
-                'error': 'Этот рецепт не в списке покупок'},
+            return Response(
+                'Этот рецепт не в списке покупок',
                 status=status.HTTP_400_BAD_REQUEST)
         recipe_in_shopping_cart.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
