@@ -1,14 +1,15 @@
+from django.forms import MultipleChoiceField
 from django.contrib.auth import get_user_model
 from django_filters.rest_framework import FilterSet, filters
 from rest_framework.filters import SearchFilter
 from rest_framework.exceptions import AuthenticationFailed
-from django import forms
-from recipe.models import Recipe, Tag
+
+from recipe.models import Recipe
 
 User = get_user_model()
 
 
-class TagsField(forms.MultipleChoiceField):
+class TagsField(MultipleChoiceField):
     def validate(self, value):
         pass
 
