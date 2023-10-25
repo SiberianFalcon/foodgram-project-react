@@ -3,9 +3,12 @@ from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
+
+
 from recipe.models import (
     Favorite, Ingredient, Recipe,
     RecipeIngredient, Subscription, Tag)
+
 
 MIN_VALUE = 1
 MAX_VALUE = 32000
@@ -16,8 +19,8 @@ User = get_user_model()
 class CustomUserCreateSerializer(UserCreateSerializer):
     class Meta:
         model = User
-        fields = ('email', 'id', 'password', 'username',
-                  'first_name', 'last_name')
+        fields = (
+            'email', 'id', 'password', 'username', 'first_name', 'last_name')
 
 
 class CustomUserSerializer(UserSerializer):
@@ -27,8 +30,7 @@ class CustomUserSerializer(UserSerializer):
         model = User
         fields = (
             'email', 'id', 'username', 'first_name', 'last_name',
-            'is_subscribed'
-        )
+            'is_subscribed')
 
     def get_is_subscribed(self, obj):
         user = self.context.get('request').user
@@ -123,14 +125,13 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = ('id', 'tags', 'author', 'ingredients',
-                  'is_favorited', 'is_in_shopping_cart',
-                  'name', 'image', 'text', 'cooking_time')
+        fields = (
+            'id', 'tags', 'author', 'ingredients', 'is_favorited',
+             'is_in_shopping_cart', 'name', 'image', 'text', 'cooking_time')
 
         read_only_fields = (
             "is_favorite",
-            "is_shopping_cart",
-        )
+            "is_shopping_cart")
 
     def get_user(self):
         request = self.context.get('request')
@@ -189,8 +190,7 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def update_or_create_ingredient_amount(self, validated_data, recipe):
         if not validated_data:
-            raise serializers.ValidationError(
-                'Необходим ингредиент')
+            raise serializers.ValidationError('Необходим ингредиент')
 
         goods = []
         for i in validated_data:
@@ -249,8 +249,7 @@ class ShortRecipeInFavoriteSerializer(serializers.ModelSerializer):
         user = data.get('user')
         recipe = data.get('recipe')
         if user.favorite_recipes.filter(recipe=recipe).exists():
-            raise ValidationError(
-                {'error': 'This recipe is already in favorites.'})
+            raise ValidationError('Рецепт уже в избранном')
         return data
 
     def to_representation(self, instance):
