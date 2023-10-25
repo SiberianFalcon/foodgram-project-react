@@ -29,9 +29,9 @@ class RecipeFilter(FilterSet):
         model = Recipe
         fields = ('tags', 'author', 'is_favorited', 'is_in_shopping_cart')
 
-    def get_tags(self, queryset, name, value): 
+    def get_tags(self, queryset, name, value):
         queryset = queryset.filter(tags__slug__in=value).distinct()
-        return queryset 
+        return queryset
 
     def filter_is_favorited(self, queryset, name, value):
         if self.request.user.is_anonymous:
