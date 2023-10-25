@@ -92,8 +92,9 @@ class RecipeViewSet(ModelViewSet):
 
     def perform_destroy(self, serializer):
         if serializer.author != self.request.user:
-            raise Response("Вы не являетесь автором этой записи.",
-                           status=status.HTTP_403_FORBIDDEN)
+            raise Response(
+                'Вы не являетесь автором этой записи.',
+                status=status.HTTP_403_FORBIDDEN)
         serializer.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 

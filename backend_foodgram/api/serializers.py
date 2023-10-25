@@ -167,7 +167,7 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         tags_id = self.initial_data.get('tags')
-        ingredients = self.initial_data.get("ingredients")
+        ingredients = self.initial_data.get('ingredients')
         ingredients_id = Ingredient.objects.values_list('id', flat=True)
 
         for i in ingredients:
@@ -176,15 +176,15 @@ class RecipeSerializer(serializers.ModelSerializer):
 
         if data['ingredients'] is None:
             raise ValidationError('Ингредиенты - Обязательное поле!')
-        elif data['cooking_time'] is None:
+        if data['cooking_time'] is None:
             raise ValidationError('Время готовки - Обязательное поле!')
-        elif data['image'] is None:
+        if data['image'] is None:
             raise ValidationError('Картинка - Обязательное поле!')
-        elif data['name'] is None:
+        if data['name'] is None:
             raise ValidationError('Название - Обязательное поле!')
-        elif data['text'] is None:
+        if data['text'] is None:
             raise ValidationError('Описание - Обязательное поле!')
-        elif not tags_id or not ingredients:
+        if not tags_id or not ingredients:
             raise ValidationError('Нет такого тега или ингредиента')
         return data
 

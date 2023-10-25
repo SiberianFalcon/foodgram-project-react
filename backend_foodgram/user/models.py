@@ -3,6 +3,9 @@ from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
 
 
+from .constants import MAX_LENGHT_FOR_EMAIL, MAX_LENGHT
+
+
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, username, first_name,
                     last_name, password=None):
@@ -28,16 +31,16 @@ class CustomUserManager(BaseUserManager):
 
 class CustomUser(AbstractUser):
     email = models.EmailField(
-        'email address', max_length=255, unique=True)
+        'email address', max_length=MAX_LENGHT_FOR_EMAIL, unique=True)
     username = models.CharField(
-        max_length=150, unique=True, help_text=(
-            'Обязательно. Не более 150 знаков.'
+        max_length=MAX_LENGHT, unique=True, help_text=(
+            'Обязательно. Не более MAX_LENGHT знаков.'
             'Применимы только латинские буквы, цифры и символы @/./+/-/_'),
         validators=[UnicodeUsernameValidator],
         error_messages={
             'unique': 'Пользователь с таким именем уже существует', })
-    first_name = models.CharField('first name', max_length=150)
-    last_name = models.CharField('last name', max_length=150)
+    first_name = models.CharField('first name', max_length=MAX_LENGHT)
+    last_name = models.CharField('last name', max_length=MAX_LENGHT)
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
 

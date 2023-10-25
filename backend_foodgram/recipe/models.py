@@ -5,7 +5,7 @@ from django.core.validators import (
     MaxValueValidator, MinValueValidator, RegexValidator)
 from django.db import models
 
-from .constants import MAX_LENGHT, MAX_VALUE, MIN_VALUE
+from .constants import MAX_LENGHT, MAX_VALUE, MIN_VALUE, MAX_LENGHT_FOR_COLOR
 
 
 User = get_user_model()
@@ -14,7 +14,8 @@ User = get_user_model()
 class Tag(models.Model):
     name = models.CharField(max_length=MAX_LENGHT, unique=True)
     color = ColorField(
-        'Цвет тега', max_length=7, default='#FF0000', unique=True,
+        'Цвет тега', max_length=MAX_LENGHT_FOR_COLOR,
+        default='#FF0000', unique=True,
         validators=[
             RegexValidator(
                 regex='^#([A-F0-9]{6}|[A-F0-9]{3})$',
